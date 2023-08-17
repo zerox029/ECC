@@ -6,6 +6,10 @@
 #define ECC2_PARSER_H
 
 typedef enum {
+    ND_EQ,  // ==
+    ND_NEQ, // !=
+    ND_LT,  // <
+    ND_LEQ, // <=
     ND_ADD, // +
     ND_SUB, // -
     ND_MUL, // *
@@ -26,6 +30,9 @@ Node *new_node(NodeKind, Node*, Node*);
 Node *new_node_num(int);
 
 Node *expr();
+Node *equality();
+Node *relational();
+Node *add();
 Node *mul();
 Node *unary();
 Node *primary();

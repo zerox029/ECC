@@ -20,15 +20,16 @@ struct Token {
     Token *next;
     int val;
     char *str;
+    int len;
 };
 
 Token *token;
 
-bool consume(char);
-void expect(char);
+bool consume(char*);
+void expect(char*);
 int expect_number();
 bool at_eof();
-Token *new_token(TokenKind, Token*, char*);
+Token *new_token(TokenKind, Token*, char*, int);
 Token *tokenize(char*);
 
 #endif //ECC2_TOKENIZER_H

@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "tokenizer.h"
 
+// Creates a new, non-numerical, node
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -15,6 +16,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     return node;
 }
 
+// Creates a new numerical leaf node
 Node *new_node_num(int val) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
@@ -23,14 +25,60 @@ Node *new_node_num(int val) {
     return node;
 }
 
+// expr = equality
 Node *expr() {
+    return equality();
+}
+
+// equality = relational ("==" relational | "!=" relational)*
+Node *equality() {
+    Node *node = relational();
+
+    for(;;) {
+        if(consume("==")) {
+            node = new_node(ND_EQ, node, relational());
+        }
+        else if(consume("!=")) {
+            node = new_node(ND_NEQ, node, relational());
+        }
+        else {
+            return node;
+        }
+    }
+}
+
+// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+Node *relational() {
+    Node *node = add();
+
+    for(;;) {
+        if(consume("<")) {
+            node = new_node(ND_LT, node, add());
+        }
+        else if(consume("<=")) {
+            node = new_node(ND_LEQ, node, add());
+        }
+        else if(consume(">")) {
+            node = new_node(ND_LT, add(), node);
+        }
+        else if(consume(">=")) {
+            node = new_node(ND_LEQ, add(), node);
+        }
+        else {
+            return node;
+        }
+    }
+}
+
+// add = mul ("+" mul | "-" mul)*
+Node *add() {
     Node *node = mul();
 
     for(;;) {
-        if(consume('+')) {
+        if(consume("+")) {
             node = new_node(ND_ADD, node, mul());
         }
-        else if(consume('-')) {
+        else if(consume("-")) {
             node = new_node(ND_SUB, node, mul());
         }
         else {
@@ -39,14 +87,15 @@ Node *expr() {
     }
 }
 
+// mul = unary ("*" unary | "/" unary)*
 Node *mul() {
     Node *node = unary();
 
     for(;;) {
-        if(consume('*')) {
+        if(consume("*")) {
             node = new_node(ND_MUL, node, unary());
         }
-        else if(consume('/')) {
+        else if(consume("/")) {
             node = new_node(ND_DIV, node, unary());
         }
         else {
@@ -55,21 +104,23 @@ Node *mul() {
     }
 }
 
+// unary = ("+" | "-")? primary
 Node *unary() {
-    if(consume('+')) {
+    if(consume("+")) {
         return primary();
     }
-    if(consume('-')) {
+    if(consume("-")) {
         return new_node(ND_SUB, new_node_num(0), primary());
     }
 
     return primary();
 }
 
+// primary = num | "(" expr ")"
 Node *primary() {
-    if(consume('(')) {
+    if(consume("(")) {
         Node *node = expr();
-        expect(')');
+        expect(")");
 
         return node;
     }
