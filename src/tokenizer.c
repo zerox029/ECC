@@ -10,7 +10,7 @@
 #include "generator.h"
 
 // Returns true of the current token is the expected type and moves to the next token
-bool consume(char *operator) {
+bool consume(char* operator) {
     if(token->kind != TK_RESERVED ||
        strlen(operator) != token->len ||
        memcmp(token->str, operator, token->len))
@@ -23,7 +23,7 @@ bool consume(char *operator) {
 }
 
 // Throws an error if the current token is not of the expected type and moves to the next token otherwise
-void expect(char *operator) {
+void expect(char* operator) {
     if(token->kind != TK_RESERVED ||
        strlen(operator) != token->len ||
        memcmp(token->str, operator, token->len))
@@ -50,8 +50,8 @@ bool at_eof() {
     return token->kind == TK_EOF;
 }
 
-Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
-    Token *tok = calloc(1, sizeof(Token));
+Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
+    Token* tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str = str;
     tok->len = len;
@@ -60,15 +60,15 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
     return tok;
 }
 
-bool startsWith(char *p, char *q) {
+bool startsWith(char* p, char* q) {
     return memcmp(p, q, strlen(q)) == 0;
 }
 
 // Creates a linked list from a string of characters
-Token *tokenize(char *p) {
+Token* tokenize(char* p) {
     Token head;
     head.next = NULL;
-    Token *cur = &head;
+    Token* cur = &head;
 
     while(*p) {
         if (isspace(*p)) {
@@ -86,7 +86,7 @@ Token *tokenize(char *p) {
         }
 
         // Punctuator
-        if(strchr("+-*/()<>", *p)) {
+        if(strchr("+-*/()<>",*p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
 
             continue;
@@ -95,7 +95,7 @@ Token *tokenize(char *p) {
         if (isdigit(*p))
         {
             cur = new_token(TK_NUM, cur, p, 0);
-            char *q = p;
+            char* q = p;
             cur->val = strtol(p, &p, 10);
             cur->len = p - q;
 

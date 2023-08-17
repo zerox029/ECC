@@ -8,7 +8,7 @@
 #include "generator.h"
 #include "parser.h"
 
-void error_at(char *loc, char *fmt, ...) {
+void error_at(char* loc, char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
@@ -21,7 +21,7 @@ void error_at(char *loc, char *fmt, ...) {
     exit(1);
 }
 
-void error(char *fmt, ...) {
+void error(char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
@@ -40,7 +40,7 @@ void generate_return() {
     printf("    ret\n");
 }
 
-void generate(Node *node) {
+void generate(Node* node) {
     if(node->kind == ND_NUM) {
         printf("    push %d\n", node->val);
         return;

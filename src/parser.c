@@ -7,8 +7,8 @@
 #include "tokenizer.h"
 
 // Creates a new, non-numerical, node
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
-    Node *node = calloc(1, sizeof(Node));
+Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
+    Node* node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
@@ -17,8 +17,8 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 }
 
 // Creates a new numerical leaf node
-Node *new_node_num(int val) {
-    Node *node = calloc(1, sizeof(Node));
+Node* new_node_num(int val) {
+    Node* node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
     node->val = val;
 
@@ -26,13 +26,13 @@ Node *new_node_num(int val) {
 }
 
 // expr = equality
-Node *expr() {
+Node* expr() {
     return equality();
 }
 
 // equality = relational ("==" relational | "!=" relational)*
-Node *equality() {
-    Node *node = relational();
+Node* equality() {
+    Node* node = relational();
 
     for(;;) {
         if(consume("==")) {
@@ -71,8 +71,8 @@ Node *relational() {
 }
 
 // add = mul ("+" mul | "-" mul)*
-Node *add() {
-    Node *node = mul();
+Node* add() {
+    Node* node = mul();
 
     for(;;) {
         if(consume("+")) {
@@ -88,8 +88,8 @@ Node *add() {
 }
 
 // mul = unary ("*" unary | "/" unary)*
-Node *mul() {
-    Node *node = unary();
+Node* mul() {
+    Node* node = unary();
 
     for(;;) {
         if(consume("*")) {
@@ -105,7 +105,7 @@ Node *mul() {
 }
 
 // unary = ("+" | "-")? primary
-Node *unary() {
+Node* unary() {
     if(consume("+")) {
         return primary();
     }
@@ -117,9 +117,9 @@ Node *unary() {
 }
 
 // primary = num | "(" expr ")"
-Node *primary() {
+Node* primary() {
     if(consume("(")) {
-        Node *node = expr();
+        Node* node = expr();
         expect(")");
 
         return node;
