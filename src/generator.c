@@ -40,6 +40,17 @@ void generate_return() {
     printf("    ret\n");
 }
 
+void generate_comparison(char* operator_instruction) {
+    printf("    cmp rax, rdi\n");
+    printf("    %s al\n", operator_instruction);
+    printf("    movzb rax, al\n");
+}
+
+void generate_division() {
+    printf("    cqo\n");
+    printf("    idiv rdi\n");
+}
+
 void generate(Node* node) {
     if(node->kind == ND_NUM) {
         printf("    push %d\n", node->val);
@@ -54,24 +65,16 @@ void generate(Node* node) {
 
     switch(node->kind) {
         case ND_EQ:
-            printf("    cmp rax, rdi\n");
-            printf("    sete al\n");
-            printf("    movzb rax, al\n");
+            generate_comparison("sete");
             break;
         case ND_NEQ:
-            printf("    cmp rax, rdi\n");
-            printf("    setne al\n");
-            printf("    movzb rax, al\n");
+            generate_comparison("setne");
             break;
         case ND_LT:
-            printf("    cmp rax, rdi\n");
-            printf("    setl al\n");
-            printf("    movzb rax, al\n");
+            generate_comparison("setl");
             break;
         case ND_LEQ:
-            printf("    cmp rax, rdi\n");
-            printf("    setle al\n");
-            printf("    movzb rax, al\n");
+            generate_comparison("setle");
             break;
         case ND_ADD:
             printf("    add rax, rdi\n");
@@ -83,8 +86,7 @@ void generate(Node* node) {
             printf("    imul rax, rdi\n");
             break;
         case ND_DIV:
-            printf("    cqo\n");
-            printf("    idiv rdi\n");
+            generate_division();
             break;
     }
 
