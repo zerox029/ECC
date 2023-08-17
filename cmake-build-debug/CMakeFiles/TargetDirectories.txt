@@ -1,4 +1,0 @@
-/home/emma/ECC/cmake-build-debug/CMakeFiles/ECC.dir
-/home/emma/ECC/cmake-build-debug/CMakeFiles/run-tests.dir
-/home/emma/ECC/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/emma/ECC/cmake-build-debug/CMakeFiles/rebuild_cache.dir
