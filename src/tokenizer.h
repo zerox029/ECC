@@ -2,8 +2,8 @@
 // Created by emma on 8/16/23.
 //
 
-#ifndef ECC2_TOKENIZER_H
-#define ECC2_TOKENIZER_H
+#ifndef ECC_TOKENIZER_H
+#define ECC_TOKENIZER_H
 
 #include <stdbool.h>
 
@@ -32,4 +32,4 @@ bool at_eof();
 Token *new_token(TokenKind, Token*, char*, int);
 Token *tokenize(char*);
 
-#endif //ECC2_TOKENIZER_H
+#endif //ECC_TOKENIZER_H

@@ -2,8 +2,8 @@
 // Created by emma on 8/16/23.
 //
 
-#ifndef ECC2_GENERATOR_H
-#define ECC2_GENERATOR_H
+#ifndef ECC_GENERATOR_H
+#define ECC_GENERATOR_H
 
 #include "parser.h"
 
@@ -15,4 +15,4 @@ void generate_intro();
 void generate_return();
 void generate(Node *node);
 
-#endif //ECC2_GENERATOR_H
+#endif //ECC_GENERATOR_H

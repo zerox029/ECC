@@ -2,8 +2,8 @@
 // Created by emma on 8/16/23.
 //
 
-#ifndef ECC2_PARSER_H
-#define ECC2_PARSER_H
+#ifndef ECC_PARSER_H
+#define ECC_PARSER_H
 
 typedef enum {
     ND_EQ,  // ==
@@ -37,4 +37,4 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-#endif //ECC2_PARSER_H
+#endif //ECC_PARSER_H
