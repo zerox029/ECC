@@ -9,11 +9,13 @@
 #include "tokenizer.h"
 #include "generator.h"
 
+Token* token;
+
 // Returns true of the current token is the expected type and moves to the next token
 bool consume(char* operator) {
     if(token->kind != TK_RESERVED ||
        strlen(operator) != token->len ||
-       memcmp(token->str, operator, token->len))
+       memcmp(token->str, operator, token->len) != 0)
     {
         return false;
     }
@@ -26,7 +28,7 @@ bool consume(char* operator) {
 void expect(char* operator) {
     if(token->kind != TK_RESERVED ||
        strlen(operator) != token->len ||
-       memcmp(token->str, operator, token->len))
+       memcmp(token->str, operator, token->len) != 0)
     {
         error_at(token->str, "Was not'%c'", operator);
     }

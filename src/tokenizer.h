@@ -17,19 +17,19 @@ typedef enum {
 
 struct Token {
     TokenKind kind;
-    Token *next;
+    Token* next;
     int val;
-    char *str;
+    char* str;
     int len;
 };
 
-Token *token;
+extern Token* token;
 
 bool consume(char*);
 void expect(char*);
 int expect_number();
 bool at_eof();
-Token *new_token(TokenKind, Token*, char*, int);
-Token *tokenize(char*);
+Token* new_token(TokenKind, Token*, char*, int);
+Token* tokenize(char*);
 
 #endif //ECC_TOKENIZER_H

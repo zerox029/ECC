@@ -8,6 +8,8 @@
 #include "generator.h"
 #include "parser.h"
 
+char* user_input = "";
+
 void error_at(char* loc, char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);

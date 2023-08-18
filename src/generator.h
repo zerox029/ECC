@@ -7,12 +7,12 @@
 
 #include "parser.h"
 
-char *user_input;
+extern char* user_input;
 
 void error_at(char*, char*, ...);
 void error(char*, ...);
 void generate_intro();
 void generate_return();
-void generate(Node *node);
+void generate(Node*);
 
 #endif //ECC_GENERATOR_H
