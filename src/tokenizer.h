@@ -10,18 +10,18 @@
 typedef struct Token Token;
 
 typedef enum {
-    TK_RESERVED,
-    TK_LABEL,
-    TK_NUM,
-    TK_EOF,
+  TK_RESERVED,
+  TK_LABEL,
+  TK_NUM,
+  TK_EOF,
 } TokenKind;
 
 struct Token {
-    TokenKind kind;
-    Token* next;
-    int val;
-    char* str;
-    int len;
+  TokenKind kind;
+  Token* next;
+  int val;
+  char* str;
+  int len;
 };
 
 extern Token* token;
