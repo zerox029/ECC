@@ -36,9 +36,9 @@ void generate_prologue() {
     printf(".globl main\n");
     printf("main:\n");
 
-    printf("push rbp\n");
-    printf("mov rbp, rsp\n");
-    printf("sub rsp, 208\n");
+    printf("    push rbp\n");
+    printf("    mov rbp, rsp\n");
+    printf("    sub rsp, 208\n");
 }
 
 void generate_epilogue() {
