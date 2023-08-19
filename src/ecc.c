@@ -11,11 +11,17 @@ int main(int argc, char** argv) {
 
     user_input = argv[1];
     token = tokenize(user_input);
-    Node* node = expr();
+    program();
 
-    generate_intro();
-    generate(node);
-    generate_return();
+    generate_prologue();
+
+    for(int i = 0; code[i]; i++) {
+        generate(code[i]);
+
+        printf("    pop rax\n");
+    }
+
+    generate_epilogue();
 
     return 0;
 }

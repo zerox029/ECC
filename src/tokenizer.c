@@ -24,13 +24,25 @@ bool consume(char* operator) {
     return true;
 }
 
+Token* consume_label() {
+    if(token->kind == TK_LABEL) {
+        Token* returnToken = token;
+        token = token->next;
+
+        return returnToken;
+    }
+    else {
+        return NULL;
+    }
+}
+
 // Throws an error if the current token is not of the expected type and moves to the next token otherwise
 void expect(char* operator) {
     if(token->kind != TK_RESERVED ||
        strlen(operator) != token->len ||
        memcmp(token->str, operator, token->len) != 0)
     {
-        error_at(token->str, "Was not'%c'", operator);
+        error_at(token->str, "Was not'%s'", operator);
     }
 
     token = token->next;
@@ -88,12 +100,21 @@ Token* tokenize(char* p) {
         }
 
         // Punctuator
-        if(strchr("+-*/()<>",*p)) {
+        if(strchr("+-*/=()<>;",*p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
 
             continue;
         }
 
+        // Label
+        if('a' <= *p && *p <= 'z') {
+            cur = new_token(TK_LABEL, cur, p++, 1);
+            cur->len = 1;
+
+            continue;
+        }
+
+        // Digit
         if (isdigit(*p))
         {
             cur = new_token(TK_NUM, cur, p, 0);
