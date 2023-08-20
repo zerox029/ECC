@@ -37,5 +37,7 @@ assert 0 '10>=50;'
 
 assert 10 'a=5; a+5;'
 assert 25 'a=20; b=5; a+b;'
+assert 10 'foo=5; foo+5;'
+assert 25 'foo=20; bar=5; foo+bar;'
 
 echo OK

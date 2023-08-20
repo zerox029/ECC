@@ -60,6 +60,7 @@ bool at_eof() {
   return token->kind == TK_EOF;
 }
 
+// Creates a new token, adds it at the end of the tokens linked list and returns the created token
 Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
   Token* tok = calloc(1, sizeof(Token));
   tok->kind = kind;
@@ -72,6 +73,10 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
 
 bool startsWith(char* p, char* q) {
   return memcmp(p, q, strlen(q)) == 0;
+}
+
+bool isAlpha(char p) {
+  return 'a' <= p && p <= 'z';
 }
 
 // Creates a linked list from a string of characters
@@ -103,10 +108,14 @@ Token* tokenize(char* p) {
     }
 
     // Label
-    if ('a' <= *p && *p <= 'z') {
+    if (isAlpha(*p)) {
       cur = new_token(TK_LABEL, cur, p++, 1);
       cur->len = 1;
 
+      while(isAlpha(*p)) {
+        cur->len++;
+        p++;
+      }
       continue;
     }
 

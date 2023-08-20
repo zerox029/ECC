@@ -38,7 +38,7 @@ void generate_prologue() {
 
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
-  printf("    sub rsp, 208\n"); // 26 letters * 8 bytes = 208
+  printf("    sub rsp, 32\n"); // 26 letters * 8 bytes = 208
 }
 
 void generate_epilogue() {

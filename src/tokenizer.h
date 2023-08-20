@@ -31,6 +31,7 @@ Token* consume_label();
 void expect(char*);
 int expect_number();
 bool at_eof();
+bool isAlpha(char);
 Token* new_token(TokenKind, Token*, char*, int);
 Token* tokenize(char*);
 

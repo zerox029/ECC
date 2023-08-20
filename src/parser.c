@@ -15,10 +15,13 @@
 // primary    = num | ident | "(" expr ")"
 
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
 #include "tokenizer.h"
 
 Node* code[100];
+
+LVar* locals;
 
 // Creates a new, non-numerical, node
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
@@ -37,6 +40,16 @@ Node* new_node_num(int val) {
   node->val = val;
 
   return node;
+}
+
+LVar* find_lvar(Token* tok) {
+  for (LVar* var = locals; var; var = var->next) {
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+      return var;
+    }
+  }
+
+  return NULL;
 }
 
 void program() {
@@ -161,7 +174,25 @@ Node* primary() {
   if (tok) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
-    node->offset = (tok->str[0] - 'a' + 1) * 8;
+
+    LVar* lvar = find_lvar(tok);
+    if (lvar) {
+      node->offset = lvar->offset;
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+
+      if(locals) {
+        lvar->offset = locals->offset + 8;
+      } else {
+        lvar->offset = 8;
+      }
+
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
 
     return node;
   }

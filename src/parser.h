@@ -5,6 +5,8 @@
 #ifndef ECC_PARSER_H
 #define ECC_PARSER_H
 
+#include "tokenizer.h"
+
 typedef enum {
   ND_ASSIGN, // =
   ND_EQ,     // ==
@@ -29,10 +31,21 @@ struct Node {
   int offset;
 };
 
+typedef struct LVar LVar;
+
+struct LVar {
+  LVar* next;
+  char* name;
+  int len;
+  int offset;
+};
+
 extern Node* code[100];
 
 Node* new_node(NodeKind, Node*, Node*);
 Node* new_node_num(int);
+
+LVar* find_lvar(Token* tok);
 
 void program();
 Node* stmt();
