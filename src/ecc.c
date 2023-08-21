@@ -18,10 +18,8 @@ int main(int argc, char** argv) {
   for (int i = 0; code[i]; i++) {
     generate(code[i]);
 
-    printf("    pop rax\n");
+    printf("  pop rax\n");
   }
-
-  generate_epilogue();
 
   return 0;
 }

@@ -11,6 +11,7 @@ typedef struct Token Token;
 
 typedef enum {
   TK_RESERVED,
+  TK_RETURN,
   TK_LABEL,
   TK_NUM,
   TK_EOF,
@@ -27,11 +28,12 @@ struct Token {
 extern Token* token;
 
 bool consume(char*);
+bool consume_kind(TokenKind);
 Token* consume_label();
 void expect(char*);
 int expect_number();
 bool at_eof();
-bool isAlpha(char);
+bool isAlphanum(char);
 Token* new_token(TokenKind, Token*, char*, int);
 Token* tokenize(char*);
 
