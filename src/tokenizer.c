@@ -11,7 +11,7 @@
 
 Token* token;
 
-// Returns true of the current token is the expected type and moves to the next token
+// Returns true if the current token is the expected type and moves to the next token
 bool consume(char* operator) {
   if (token->kind != TK_RESERVED ||
       strlen(operator) != token->len ||
@@ -21,6 +21,15 @@ bool consume(char* operator) {
 
   token = token->next;
   return true;
+}
+
+bool consume_kind(TokenKind kind) {
+  if(token->kind == kind) {
+    token = token->next;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 Token* consume_label() {
@@ -75,8 +84,11 @@ bool startsWith(char* p, char* q) {
   return memcmp(p, q, strlen(q)) == 0;
 }
 
-bool isAlpha(char p) {
-  return 'a' <= p && p <= 'z';
+bool isAlphanum(char p) {
+  return ('a' <= p && p <= 'z') ||
+      ('A' <= p && p <= 'Z') ||
+      ('0' <= p && p <= '9') ||
+      (p == '_');
 }
 
 // Creates a linked list from a string of characters
@@ -107,15 +119,11 @@ Token* tokenize(char* p) {
       continue;
     }
 
-    // Label
-    if (isAlpha(*p)) {
-      cur = new_token(TK_LABEL, cur, p++, 1);
-      cur->len = 1;
+    // Return statement
+    if(strncmp(p, "return", 6) == 0 && !isAlphanum(p[6])) {
+      cur = new_token(TK_RETURN, cur, p, 6);
+      p += 6;
 
-      while(isAlpha(*p)) {
-        cur->len++;
-        p++;
-      }
       continue;
     }
 
@@ -125,6 +133,19 @@ Token* tokenize(char* p) {
       char* q = p;
       cur->val = strtol(p, &p, 10);
       cur->len = p - q;
+
+      continue;
+    }
+
+    // Label
+    if (isAlphanum(*p)) {
+      cur = new_token(TK_LABEL, cur, p++, 1);
+      cur->len = 1;
+
+      while (isAlphanum(*p)) {
+        cur->len++;
+        p++;
+      }
 
       continue;
     }

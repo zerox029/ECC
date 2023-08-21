@@ -17,6 +17,7 @@ typedef enum {
   ND_SUB,    // -
   ND_MUL,    // *
   ND_DIV,    // /
+  ND_RETURN, // return
   ND_LVAR,   // Local variable
   ND_NUM     // Integer
 } NodeKind;
