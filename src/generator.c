@@ -55,7 +55,7 @@ void generate_if(Node* node) {
   generate(node->condition);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
-  printf("  je  .Lend%s\n", label);
+  printf("  je .Lend%s\n", label);
   generate(node->lhs);
   printf(".Lend%s:\n", label);
 }
@@ -66,7 +66,7 @@ void generate_if_else(Node* node) {
   generate(node->condition);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
-  printf("  je  .Lelse%s\n", label);
+  printf("  je .Lelse%s\n", label);
   generate(node->lhs);
 
   // else
@@ -84,8 +84,23 @@ void generate_while(Node* node) {
   generate(node->condition);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
-  printf("  je  .Lend%s\n", label);
+  printf("  je .Lend%s\n", label);
   generate(node->lhs);
+  printf("  jmp .Lbegin%s\n", label);
+  printf(".Lend%s:\n", label);
+}
+
+void generate_for(Node* node) {
+  char* label = generateRandomLabel();
+
+  generate(node->lhs);
+  printf(".Lbegin%s:\n", label);
+  generate(node->condition);
+  printf("  pop rax\n");
+  printf("  cmp rax, 0\n");
+  printf("  je .Lend%s\n", label);
+  generate(node->rhs);
+  generate(node->update);
   printf("  jmp .Lbegin%s\n", label);
   printf(".Lend%s:\n", label);
 }
@@ -123,6 +138,10 @@ void generate(Node* node) {
 
     case ND_WHILE:
       generate_while(node);
+      return;
+
+    case ND_FOR:
+      generate_for(node);
       return;
 
     case ND_RETURN:

@@ -27,8 +27,12 @@ struct Symbol symbols[] = {
 
 struct Symbol keywords[] = {
     {"return", TK_RETURN}, {"if", TK_IF}, {"else", TK_ELSE},
-    {"while", TK_WHILE}
+    {"while", TK_WHILE}, {"for", TK_FOR}
 };
+
+Token* peek() {
+
+}
 
 // Returns the current token if it is of the specified kind and then moves to the next one, returns null otherwise
 Token* consume(TokenKind token_kind) {

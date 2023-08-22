@@ -20,6 +20,7 @@ typedef enum {
   ND_RETURN, // return
   ND_IF,     // if
   ND_WHILE,  // while
+  ND_FOR,    // for
   ND_LVAR,   // Local variable
   ND_NUM     // Integer
 } NodeKind;
@@ -31,6 +32,7 @@ struct Node {
   Node* lhs; //left-hand side branch
   Node* rhs; //right-hand side branch
   Node* condition; //third branch (used for branching conditions)
+  Node* update; //fourth branch (used in for loops)
   int val;
   int offset;
 };

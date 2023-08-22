@@ -7,6 +7,7 @@ program    = stmt*
 stmt       = expr ";"
              | "if" "(" expr ")" stmt ("else" stmt)?
              | "while" "(" expr ")" stmt
+             | "for" "(" expr? ";" expr? ";" expr? ")" stmt
              | "return" expr ";"
 expr       = assign
 assign     = equality ("=" assign)?
@@ -68,18 +69,17 @@ void program() {
 // stmt = expr ";"
 //        | "if" "(" expr ")" stmt ("else" stmt)?
 //        | "while" "(" expr ")" stmt
+//        | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //        | "return" expr ";"
 Node* stmt() {
-  Node *node;
+  Node* node = calloc(1, sizeof(Node));
 
   if(consume(TK_RETURN)) {
-    node = calloc(1, sizeof(node));
     node->kind = ND_RETURN;
     node->lhs = expr();
     expect(TK_SMCOLON);
   }
   else if(consume(TK_IF)) {
-    node = calloc(1, sizeof(node));
     node->kind = ND_IF;
 
     // Condition
@@ -96,7 +96,6 @@ Node* stmt() {
     }
   }
   else if(consume(TK_WHILE)) {
-    node = calloc(1, sizeof(node));
     node->kind = ND_WHILE;
 
     // Condition
@@ -106,6 +105,29 @@ Node* stmt() {
 
     // Consequent
     node->lhs = stmt();
+  }
+  else if(consume(TK_FOR)) {
+    node->kind = ND_FOR;
+
+    expect(TK_OP_PAR);
+
+    if(token->kind != TK_SMCOLON) {
+      node->lhs = expr();
+    }
+    expect(TK_SMCOLON);
+
+    if(token->kind != TK_SMCOLON) {
+      node->condition = expr();
+    }
+    expect(TK_SMCOLON);
+
+    if(token->kind != TK_OP_PAR) {
+      node->update = expr();
+    }
+
+    expect(TK_CL_PAR);
+
+    node->rhs = stmt();
   }
   else {
     node = expr();
