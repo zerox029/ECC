@@ -9,9 +9,6 @@
 
 extern char* user_input;
 
-void error_at(char*, char*, ...);
-void error(char*, ...);
-
 void generate_prologue();
 void generate_local_variable(Node*);
 void generate(Node*);

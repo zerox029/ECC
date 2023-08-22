@@ -10,31 +10,46 @@
 typedef struct Token Token;
 
 typedef enum {
-  TK_RESERVED,
-  TK_RETURN,
-  TK_LABEL,
-  TK_NUM,
-  TK_EOF,
+  TK_EQ,      // ==
+  TK_NE,      // !=
+  TK_LT,      // <
+  TK_LTE,     // <=
+  TK_GT,      // >
+  TK_GTE,     // >=
+
+  TK_PLUS,    // +
+  TK_MINUS,   // -
+  TK_STAR,    // *
+  TK_SLASH,   // /
+  TK_ASSIGN,  // =
+  TK_OP_PAR,  // (
+  TK_CL_PAR,  // )
+  TK_SMCOLON, // ;
+
+  TK_RETURN,  // return
+
+  TK_LABEL,   // Labels
+  TK_NUM,     // Numerical values
+  TK_EOF,     // End of file
 } TokenKind;
 
 struct Token {
-  TokenKind kind;
-  Token* next;
-  int val;
-  char* str;
-  int len;
+  TokenKind kind;  // Type of the token
+  int val;   // Numerical value
+  char* str; // Text value (contains the rest of the program also)
+  int len;   // Length of the token
+
+  Token* next; // Pointer to the next token in the list
 };
 
 extern Token* token;
 
-bool consume(char*);
-bool consume_kind(TokenKind);
-Token* consume_label();
-void expect(char*);
+Token* consume(TokenKind);
+void expect(TokenKind);
 int expect_number();
 bool at_eof();
-bool isAlphanum(char);
 Token* new_token(TokenKind, Token*, char*, int);
+Token* process_multicharacter_token(char*, Token*);
 Token* tokenize(char*);
 
 #endif //ECC_TOKENIZER_H

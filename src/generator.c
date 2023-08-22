@@ -2,34 +2,12 @@
 // Created by emma on 8/16/23.
 //
 
-#include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "generator.h"
 #include "parser.h"
+#include "utils.h"
 
 char* user_input = "";
-
-void error_at(char* loc, char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-
-  int pos = loc - user_input;
-  fprintf(stderr, "%s\n", user_input);
-  fprintf(stderr, "%*s", pos, " ");
-  fprintf(stderr, "^ ");
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  exit(1);
-}
-
-void error(char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  exit(1);
-}
 
 void generate_prologue() {
   printf(".intel_syntax noprefix\n");
@@ -38,7 +16,7 @@ void generate_prologue() {
 
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 32\n");
+  printf("  sub rsp, 8\n");
 }
 
 void generate_comparison(char* operator_instruction) {

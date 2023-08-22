@@ -2,17 +2,18 @@
 // Created by emma on 8/16/23.
 //
 
-// Current production rules:
-// program    = stmt*
-// stmt       = expr ";" | "return" expr ";"
-// expr       = assign
-// assign     = equality ("=" assign)?
-// equality   = relational ("==" relational | "!=" relational)*
-// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
-// add        = mul ("+" mul | "-" mul)*
-// mul        = unary ("*" unary | "/" unary)*
-// unary      = ("+" | "-")? primary
-// primary    = num | ident | "(" expr ")"
+/* Current production rules:
+program    = stmt*
+stmt       = expr ";" | "return" expr ";"
+expr       = assign
+assign     = equality ("=" assign)?
+equality   = relational ("==" relational | "!=" relational)*
+relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+add        = mul ("+" mul | "-" mul)*
+mul        = unary ("*" unary | "/" unary)*
+unary      = ("+" | "-")? primary
+primary    = num | ident | "(" expr ")"
+*/
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +66,7 @@ void program() {
 Node* stmt() {
   Node *node;
 
-  if(consume_kind(TK_RETURN)) {
+  if(consume(TK_RETURN)) {
     node = calloc(1, sizeof(node));
     node->kind = ND_RETURN;
     node->lhs = expr();
@@ -75,7 +76,7 @@ Node* stmt() {
     node = expr();
   }
 
-  expect(";");
+  expect(TK_SMCOLON);
 
   return node;
 }
@@ -89,7 +90,7 @@ Node* expr() {
 Node* assign() {
   Node* node = equality();
 
-  if (consume("=")) {
+  if (consume(TK_ASSIGN)) {
     node = new_node(ND_ASSIGN, node, assign());
   }
 
@@ -101,9 +102,9 @@ Node* equality() {
   Node* node = relational();
 
   for (;;) {
-    if (consume("==")) {
+    if (consume(TK_EQ)) {
       node = new_node(ND_EQ, node, relational());
-    } else if (consume("!=")) {
+    } else if (consume(TK_NE)) {
       node = new_node(ND_NEQ, node, relational());
     } else {
       return node;
@@ -116,13 +117,13 @@ Node* relational() {
   Node* node = add();
 
   for (;;) {
-    if (consume("<")) {
+    if (consume(TK_LT)) {
       node = new_node(ND_LT, node, add());
-    } else if (consume("<=")) {
+    } else if (consume(TK_LTE)) {
       node = new_node(ND_LEQ, node, add());
-    } else if (consume(">")) {
+    } else if (consume(TK_GT)) {
       node = new_node(ND_LT, add(), node);
-    } else if (consume(">=")) {
+    } else if (consume(TK_GTE)) {
       node = new_node(ND_LEQ, add(), node);
     } else {
       return node;
@@ -135,9 +136,9 @@ Node* add() {
   Node* node = mul();
 
   for (;;) {
-    if (consume("+")) {
+    if (consume(TK_PLUS)) {
       node = new_node(ND_ADD, node, mul());
-    } else if (consume("-")) {
+    } else if (consume(TK_MINUS)) {
       node = new_node(ND_SUB, node, mul());
     } else {
       return node;
@@ -150,9 +151,9 @@ Node* mul() {
   Node* node = unary();
 
   for (;;) {
-    if (consume("*")) {
+    if (consume(TK_STAR)) {
       node = new_node(ND_MUL, node, unary());
-    } else if (consume("/")) {
+    } else if (consume(TK_SLASH)) {
       node = new_node(ND_DIV, node, unary());
     } else {
       return node;
@@ -162,10 +163,10 @@ Node* mul() {
 
 // unary = ("+" | "-")? primary
 Node* unary() {
-  if (consume("+")) {
+  if (consume(TK_PLUS)) {
     return primary();
   }
-  if (consume("-")) {
+  if (consume(TK_MINUS)) {
     return new_node(ND_SUB, new_node_num(0), primary());
   }
 
@@ -174,14 +175,14 @@ Node* unary() {
 
 // primary = num | "(" expr ")"
 Node* primary() {
-  if (consume("(")) {
+  if (consume(TK_OP_PAR)) {
     Node* node = expr();
-    expect(")");
+    expect(TK_CL_PAR);
 
     return node;
   }
 
-  Token* tok = consume_label();
+  Token* tok = consume(TK_LABEL);
   if (tok) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
@@ -198,7 +199,7 @@ Node* primary() {
       if (locals) {
         lvar->offset = locals->offset + 8;
       } else {
-        lvar->offset = 8;
+        lvar->offset = 0;
       }
 
       node->offset = lvar->offset;

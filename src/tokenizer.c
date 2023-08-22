@@ -2,38 +2,30 @@
 // Created by emma on 8/16/23.
 //
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include "tokenizer.h"
 #include "generator.h"
+#include "utils.h"
 
 Token* token;
 
-// Returns true if the current token is the expected type and moves to the next token
-bool consume(char* operator) {
-  if (token->kind != TK_RESERVED ||
-      strlen(operator) != token->len ||
-      memcmp(token->str, operator, token->len) != 0) {
-    return false;
-  }
+static struct Symbol {
+  char* name;
+  TokenKind kind;
+} symbols[] = {
+    {"==", TK_EQ}, {"!=", TK_NE}, {"<=", TK_LTE},
+    {">=", TK_GTE}, {"<", TK_LT}, {">", TK_GT},
+    {"+", TK_PLUS},{"-", TK_MINUS},{"*", TK_STAR},
+    {"/", TK_SLASH},{"=", TK_ASSIGN},{"(", TK_OP_PAR},
+    {")", TK_CL_PAR}, {";", TK_SMCOLON}
+};
 
-  token = token->next;
-  return true;
-}
-
-bool consume_kind(TokenKind kind) {
-  if(token->kind == kind) {
-    token = token->next;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-Token* consume_label() {
-  if (token->kind == TK_LABEL) {
+// Returns the current token if it is of the specified kind and then moves to the next one, returns null otherwise
+Token* consume(TokenKind token_kind) {
+  if(token->kind == token_kind) {
     Token* returnToken = token;
     token = token->next;
 
@@ -44,11 +36,9 @@ Token* consume_label() {
 }
 
 // Throws an error if the current token is not of the expected type and moves to the next token otherwise
-void expect(char* operator) {
-  if (token->kind != TK_RESERVED ||
-      strlen(operator) != token->len ||
-      memcmp(token->str, operator, token->len) != 0) {
-    error_at(token->str, "Was not'%s'", operator);
+void expect(TokenKind token_kind) {
+  if(token->kind != token_kind) {
+    error_at(token->str, user_input, "Was not'%s'", ";");
   }
 
   token = token->next;
@@ -57,7 +47,7 @@ void expect(char* operator) {
 // Throws and error if the current token is not a number, returns the value and moves to the next token otherwise
 int expect_number() {
   if (token->kind != TK_NUM) {
-    error_at(token->str, "Was not a number");
+    error_at(token->str, user_input, "Was not a number");
   }
 
   int val = token->val;
@@ -80,16 +70,6 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
   return tok;
 }
 
-bool startsWith(char* p, char* q) {
-  return memcmp(p, q, strlen(q)) == 0;
-}
-
-bool isAlphanum(char p) {
-  return ('a' <= p && p <= 'z') ||
-      ('A' <= p && p <= 'Z') ||
-      ('0' <= p && p <= '9') ||
-      (p == '_');
-}
 
 // Creates a linked list from a string of characters
 Token* tokenize(char* p) {
@@ -104,19 +84,19 @@ Token* tokenize(char* p) {
       continue;
     }
 
-    // Multi-character punctuator
-    if (startsWith(p, "==") || startsWith(p, "!=") || startsWith(p, "<=") || startsWith(p, ">=")) {
-      cur = new_token(TK_RESERVED, cur, p, 2);
-      p += 2;
+    //Process symbols
+    for(int i = 0; symbols[i].name; i++) {
+      char* name = symbols[i].name;
 
-      continue;
-    }
+      if(!startsWith(p, symbols[i].name)) {
+        continue;
+      }
 
-    // Punctuator
-    if (strchr("+-*/=()<>;", *p)) {
-      cur = new_token(TK_RESERVED, cur, p++, 1);
+      int len = strlen(name);
+      cur = new_token(symbols[i].kind, cur, p, len);
+      p += len;
 
-      continue;
+      goto cnt;
     }
 
     // Return statement
@@ -151,8 +131,11 @@ Token* tokenize(char* p) {
     }
 
     error("Couldn't tokenize");
+
+    cnt:;
   }
 
   new_token(TK_EOF, cur, p, 0);
+
   return head.next;
 }
