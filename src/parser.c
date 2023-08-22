@@ -5,7 +5,8 @@
 /* Current production rules:
 program    = stmt*
 stmt       = expr ";"
-             | "if" "(" expr ")" stmt
+             | "if" "(" expr ")" stmt ("else" stmt)?
+             | "while" "(" expr ")" stmt
              | "return" expr ";"
 expr       = assign
 assign     = equality ("=" assign)?
@@ -66,6 +67,7 @@ void program() {
 
 // stmt = expr ";"
 //        | "if" "(" expr ")" stmt ("else" stmt)?
+//        | "while" "(" expr ")" stmt
 //        | "return" expr ";"
 Node* stmt() {
   Node *node;
@@ -92,6 +94,18 @@ Node* stmt() {
     if(consume(TK_ELSE)) {
       node->rhs = stmt();
     }
+  }
+  else if(consume(TK_WHILE)) {
+    node = calloc(1, sizeof(node));
+    node->kind = ND_WHILE;
+
+    // Condition
+    expect(TK_OP_PAR);
+    node->condition = expr();
+    expect(TK_CL_PAR);
+
+    // Consequent
+    node->lhs = stmt();
   }
   else {
     node = expr();

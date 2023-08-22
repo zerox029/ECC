@@ -77,6 +77,19 @@ void generate_if_else(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
+void generate_while(Node* node) {
+  char* label = generateRandomLabel();
+
+  printf(".Lbegin%s:\n", label);
+  generate(node->condition);
+  printf("  pop rax\n");
+  printf("  cmp rax, 0\n");
+  printf("  je  .Lend%s\n", label);
+  generate(node->lhs);
+  printf("  jmp .Lbegin%s\n", label);
+  printf(".Lend%s:\n", label);
+}
+
 void generate(Node* node) {
   switch (node->kind) {
     case ND_NUM:
@@ -106,6 +119,10 @@ void generate(Node* node) {
       } else {
         generate_if(node);
       }
+      return;
+
+    case ND_WHILE:
+      generate_while(node);
       return;
 
     case ND_RETURN:
