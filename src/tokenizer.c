@@ -107,6 +107,14 @@ Token* tokenize(char* p) {
       continue;
     }
 
+    // If statement
+    if(strncmp(p, "if", 2) == 0 && !isAlphanum(p[2])) {
+      cur = new_token(TK_IF, cur, p, 2);
+      p += 2;
+
+      continue;
+    }
+
     // Digit
     if (isdigit(*p)) {
       cur = new_token(TK_NUM, cur, p, 0);

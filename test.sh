@@ -3,8 +3,8 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./out/ECC "$input" > out/tmp.asm
-  cc -o out/tmp out/tmp.asm
+  ./out/ECC "$input" > out/tmp.s
+  cc -o out/tmp out/tmp.s
   ./out/tmp
   actual="$?"
 
@@ -52,10 +52,17 @@ variables() {
   printf "OK\n\n"
 }
 
+branching() {
+  printf "Testing branching\n"
+  assert 5 'if(5==5) return 5;'
+  printf "OK\n\n"
+}
+
 all() {
   arithmetic
   comparisons
   variables
+  branching
 }
 
 all

@@ -72,6 +72,15 @@ void generate(Node* node) {
       printf("  push rdi\n");
       return;
 
+    case ND_IF:
+      generate(node->lhs);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je  .LendXXX\n");
+      generate(node->rhs);
+      printf(".LendXXX:\n");
+      return;
+
     case ND_RETURN:
       generate_return(node);
       return;

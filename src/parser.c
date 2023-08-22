@@ -4,7 +4,9 @@
 
 /* Current production rules:
 program    = stmt*
-stmt       = expr ";" | "return" expr ";"
+stmt       = expr ";"
+             | "if" "(" expr ")" stmt
+             | "return" expr ";"
 expr       = assign
 assign     = equality ("=" assign)?
 equality   = relational ("==" relational | "!=" relational)*
@@ -62,7 +64,9 @@ void program() {
   code[i] = NULL;
 }
 
-// stmt = expr ";" | "return" expr ";"
+// stmt = expr ";"
+//        | "if" "(" expr ")" stmt
+//        | "return" expr ";"
 Node* stmt() {
   Node *node;
 
@@ -70,13 +74,22 @@ Node* stmt() {
     node = calloc(1, sizeof(node));
     node->kind = ND_RETURN;
     node->lhs = expr();
-  }
-  else
-  {
-    node = expr();
-  }
+    expect(TK_SMCOLON);
+  } else if(consume(TK_IF)) {
+    node = calloc(1, sizeof(node));
+    node->kind = ND_IF;
 
-  expect(TK_SMCOLON);
+    // Condition
+    expect(TK_OP_PAR);
+    node->lhs = expr();
+    expect(TK_CL_PAR);
+
+    // Consequent
+    node->rhs = stmt();
+  } else {
+    node = expr();
+    expect(TK_SMCOLON);
+  }
 
   return node;
 }
