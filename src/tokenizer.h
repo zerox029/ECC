@@ -50,6 +50,7 @@ struct Token {
 
 extern Token* token;
 
+bool isNextTokenOfType(TokenKind);
 Token* consume(TokenKind);
 void expect(TokenKind);
 int expect_number();

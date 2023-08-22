@@ -55,10 +55,10 @@ variables() {
 branching() {
   printf "Testing branching\n"
   assert 1 'if(5==5) return 1;'
-  assert 1 'if(5==5) return 1; else return 0;'
-  assert 0 'if(4==5) return 1; else return 0;'
-  assert 10 'foo = 0; while(foo != 10) foo = foo + 1; return foo;'
-  assert 10 'foo = 0; for(count = 0; count < 10; count = count + 1) foo = foo + 1; return foo;'
+  assert 1 'if(5==5) { return 1; } else { return 0; }'
+  assert 0 'if(4==5) { return 1; } else { return 0; }'
+  assert 10 'foo = 0; while(foo != 10) { foo = foo + 1; } return foo;'
+  assert 10 'foo = 0; for(count = 0; count < 10; count = count + 1) { foo = foo + 1; } return foo;'
 
   printf "OK\n\n"
 }

@@ -6,6 +6,7 @@
 #include "generator.h"
 #include "parser.h"
 #include "utils.h"
+#include "lib/vector.h"
 
 char* user_input = "";
 
@@ -105,6 +106,12 @@ static void generate_for(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
+void generate_block(Node* node) {
+  for(int i = 0; i < vector_size(node->branches); i++) {
+    generate(node->branches[i]);
+  }
+}
+
 void generate(Node* node) {
   switch (node->kind) {
     case ND_NUM:
@@ -142,6 +149,10 @@ void generate(Node* node) {
 
     case ND_FOR:
       generate_for(node);
+      return;
+
+    case ND_BLOCK:
+      generate_block(node);
       return;
 
     case ND_RETURN:

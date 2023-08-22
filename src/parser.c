@@ -5,6 +5,7 @@
 /* Current production rules:
 program    = stmt*
 stmt       = expr ";"
+             | "{" stmt* "}"
              | "if" "(" expr ")" stmt ("else" stmt)?
              | "while" "(" expr ")" stmt
              | "for" "(" expr? ";" expr? ";" expr? ")" stmt
@@ -69,6 +70,7 @@ void program() {
 }
 
 // stmt = expr ";"
+//        | "{" stmt* "}"
 //        | "if" "(" expr ")" stmt ("else" stmt)?
 //        | "while" "(" expr ")" stmt
 //        | "for" "(" expr? ";" expr? ";" expr? ")" stmt
@@ -115,23 +117,32 @@ Node* stmt() {
 
     expect(TK_OP_PAR);
 
-    if(token->kind != TK_SMCOLON) {
+    if(!isNextTokenOfType(TK_SMCOLON)) {
       vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
-    if(token->kind != TK_SMCOLON) {
+    if(!isNextTokenOfType(TK_SMCOLON)) {
       vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
-    if(token->kind != TK_OP_PAR) {
+    if(!isNextTokenOfType(TK_OP_PAR)) {
       vector_add(&node->branches, expr());
     }
 
     expect(TK_CL_PAR);
 
     vector_add(&node->branches, stmt());
+  }
+  else if(consume(TK_OP_BLK)) {
+    node->kind = ND_BLOCK;
+
+    while(!isNextTokenOfType(TK_CL_BLK)) {
+      vector_add(&node->branches, stmt());
+    }
+
+    expect(TK_CL_BLK);
   }
   else {
     node = expr();

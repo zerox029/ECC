@@ -31,8 +31,9 @@ struct Symbol keywords[] = {
     {"while", TK_WHILE}, {"for", TK_FOR}
 };
 
-Token* peek() {
-
+// Checks if the next token is of the specified kind
+bool isNextTokenOfType(TokenKind token_kind) {
+  return token->kind == token_kind;
 }
 
 // Returns the current token if it is of the specified kind and then moves to the next one, returns null otherwise
