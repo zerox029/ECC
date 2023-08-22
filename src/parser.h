@@ -22,17 +22,15 @@ typedef enum {
   ND_WHILE,  // while
   ND_FOR,    // for
   ND_LVAR,   // Local variable
-  ND_NUM     // Integer
+  ND_NUM,    // Integer
+  ND_BLOCK   // Statement blocks ({ ... })
 } NodeKind;
 
 typedef struct Node Node;
 
 struct Node {
   NodeKind kind;
-  Node* lhs; //left-hand side branch
-  Node* rhs; //right-hand side branch
-  Node* condition; //third branch (used for branching conditions)
-  Node* update; //fourth branch (used in for loops)
+  Node** branches;
   int val;
   int offset;
 };

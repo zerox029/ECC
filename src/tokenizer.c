@@ -22,7 +22,8 @@ struct Symbol symbols[] = {
 {">=", TK_GTE}, {"<", TK_LT}, {">", TK_GT},
 {"+", TK_PLUS},{"-", TK_MINUS},{"*", TK_STAR},
 {"/", TK_SLASH},{"=", TK_ASSIGN},{"(", TK_OP_PAR},
-{")", TK_CL_PAR}, {";", TK_SMCOLON}
+{")", TK_CL_PAR}, {";", TK_SMCOLON}, {"{", TK_OP_BLK},
+{"}", TK_CL_BLK}
 };
 
 struct Symbol keywords[] = {

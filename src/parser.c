@@ -23,6 +23,7 @@ primary    = num | ident | "(" expr ")"
 #include <string.h>
 #include "parser.h"
 #include "tokenizer.h"
+#include "lib/vector.h"
 
 Node* code[100];
 LVar* locals;
@@ -31,8 +32,10 @@ LVar* locals;
 static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
-  node->lhs = lhs;
-  node->rhs = rhs;
+
+  node->branches = vector_create();
+  vector_add(&node->branches, lhs);
+  vector_add(&node->branches, rhs);
 
   return node;
 }
@@ -72,26 +75,28 @@ void program() {
 //        | "return" expr ";"
 Node* stmt() {
   Node* node = calloc(1, sizeof(Node));
+  node->branches = vector_create();
 
   if(consume(TK_RETURN)) {
     node->kind = ND_RETURN;
-    node->lhs = expr();
+    vector_add(&node->branches, expr());
     expect(TK_SMCOLON);
   }
   else if(consume(TK_IF)) {
     node->kind = ND_IF;
+    node->branches = vector_create();
 
     // Condition
     expect(TK_OP_PAR);
-    node->condition = expr();
+    vector_add(&node->branches, expr());
     expect(TK_CL_PAR);
 
     // Consequent
-    node->lhs = stmt();
+    vector_add(&node->branches, stmt());
 
     // Alternative
     if(consume(TK_ELSE)) {
-      node->rhs = stmt();
+      vector_add(&node->branches, stmt());
     }
   }
   else if(consume(TK_WHILE)) {
@@ -99,11 +104,11 @@ Node* stmt() {
 
     // Condition
     expect(TK_OP_PAR);
-    node->condition = expr();
+    vector_add(&node->branches, expr());
     expect(TK_CL_PAR);
 
     // Consequent
-    node->lhs = stmt();
+    vector_add(&node->branches, stmt());
   }
   else if(consume(TK_FOR)) {
     node->kind = ND_FOR;
@@ -111,22 +116,22 @@ Node* stmt() {
     expect(TK_OP_PAR);
 
     if(token->kind != TK_SMCOLON) {
-      node->lhs = expr();
+      vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
     if(token->kind != TK_SMCOLON) {
-      node->condition = expr();
+      vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
     if(token->kind != TK_OP_PAR) {
-      node->update = expr();
+      vector_add(&node->branches, expr());
     }
 
     expect(TK_CL_PAR);
 
-    node->rhs = stmt();
+    vector_add(&node->branches, stmt());
   }
   else {
     node = expr();

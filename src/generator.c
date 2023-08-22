@@ -41,7 +41,7 @@ static void generate_local_variable(Node* node) {
 }
 
 static void generate_return(Node* node) {
-  generate(node->lhs);
+  generate(node->branches[0]);
 
   printf("  pop rax\n");
   printf("  mov rsp, rbp\n");
@@ -52,27 +52,27 @@ static void generate_return(Node* node) {
 static void generate_if(Node* node) {
   char* label = generateRandomLabel();
 
-  generate(node->condition);
+  generate(node->branches[0]);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
   printf("  je .Lend%s\n", label);
-  generate(node->lhs);
+  generate(node->branches[1]);
   printf(".Lend%s:\n", label);
 }
 
 static void generate_if_else(Node* node) {
   char* label = generateRandomLabel();
 
-  generate(node->condition);
+  generate(node->branches[0]);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
   printf("  je .Lelse%s\n", label);
-  generate(node->lhs);
+  generate(node->branches[1]);
 
   // else
   printf("  jmp .Lend%s\n", label);
   printf(".Lelse%s:\n", label);
-  generate(node->rhs);
+  generate(node->branches[2]);
 
   printf(".Lend%s:\n", label);
 }
@@ -81,11 +81,11 @@ static void generate_while(Node* node) {
   char* label = generateRandomLabel();
 
   printf(".Lbegin%s:\n", label);
-  generate(node->condition);
+  generate(node->branches[0]);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
   printf("  je .Lend%s\n", label);
-  generate(node->lhs);
+  generate(node->branches[1]);
   printf("  jmp .Lbegin%s\n", label);
   printf(".Lend%s:\n", label);
 }
@@ -93,14 +93,14 @@ static void generate_while(Node* node) {
 static void generate_for(Node* node) {
   char* label = generateRandomLabel();
 
-  generate(node->lhs);
+  generate(node->branches[0]);
   printf(".Lbegin%s:\n", label);
-  generate(node->condition);
+  generate(node->branches[1]);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
   printf("  je .Lend%s\n", label);
-  generate(node->rhs);
-  generate(node->update);
+  generate(node->branches[3]);
+  generate(node->branches[2]);
   printf("  jmp .Lbegin%s\n", label);
   printf(".Lend%s:\n", label);
 }
@@ -119,8 +119,8 @@ void generate(Node* node) {
       return;
 
     case ND_ASSIGN:
-      generate_local_variable(node->lhs);
-      generate(node->rhs);
+      generate_local_variable(node->branches[0]);
+      generate(node->branches[1]);
 
       printf("  pop rdi\n");
       printf("  pop rax\n");
@@ -129,7 +129,7 @@ void generate(Node* node) {
       return;
 
     case ND_IF:
-      if(node->rhs) {
+      if(node->branches[2]) {
         generate_if_else(node);
       } else {
         generate_if(node);
@@ -149,8 +149,8 @@ void generate(Node* node) {
       return;
   }
 
-  generate(node->lhs);
-  generate(node->rhs);
+  generate(node->branches[0]);
+  generate(node->branches[1]);
 
   printf("  pop rdi\n");
   printf("  pop rax\n");

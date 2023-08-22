@@ -24,13 +24,15 @@ typedef enum {
   TK_ASSIGN,  // =
   TK_OP_PAR,  // (
   TK_CL_PAR,  // )
+  TK_OP_BLK,  // {
+  TK_CL_BLK,  // }
   TK_SMCOLON, // ;
 
   TK_RETURN,  // return
   TK_IF,      // if
   TK_ELSE,    // else
   TK_WHILE,   // while
-  TK_FOR,      // for
+  TK_FOR,     // for
 
   TK_LABEL,   // Labels
   TK_NUM,     // Numerical values
