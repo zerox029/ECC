@@ -44,7 +44,15 @@ Token* consume(TokenKind token_kind) {
 // Throws an error if the current token is not of the expected type and moves to the next token otherwise
 void expect(TokenKind token_kind) {
   if(token->kind != token_kind) {
-    error_at(token->str, user_input, "Was not'%s'", ";");
+    char* symbol_name = "";
+    for(int i = 0; symbols[i].name; i++) {
+      if(token_kind == symbols[i].kind) {
+        symbol_name = symbols[i].name;
+        break;
+      }
+    }
+
+    error_at(token->str, user_input, "Was not'%s'", symbol_name);
   }
 
   token = token->next;
@@ -75,7 +83,6 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
 
   return tok;
 }
-
 
 // Creates a linked list from a string of characters
 Token* tokenize(char* p) {
