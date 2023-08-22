@@ -51,7 +51,6 @@ void expect(TokenKind);
 int expect_number();
 bool at_eof();
 Token* new_token(TokenKind, Token*, char*, int);
-Token* process_multicharacter_token(char*, Token*);
 Token* tokenize(char*);
 
 #endif //ECC_TOKENIZER_H

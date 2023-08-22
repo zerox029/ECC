@@ -12,15 +12,21 @@
 
 Token* token;
 
-static struct Symbol {
+struct Symbol {
   char* name;
   TokenKind kind;
-} symbols[] = {
-    {"==", TK_EQ}, {"!=", TK_NE}, {"<=", TK_LTE},
-    {">=", TK_GTE}, {"<", TK_LT}, {">", TK_GT},
-    {"+", TK_PLUS},{"-", TK_MINUS},{"*", TK_STAR},
-    {"/", TK_SLASH},{"=", TK_ASSIGN},{"(", TK_OP_PAR},
-    {")", TK_CL_PAR}, {";", TK_SMCOLON}
+};
+
+struct Symbol symbols[] = {
+{"==", TK_EQ}, {"!=", TK_NE}, {"<=", TK_LTE},
+{">=", TK_GTE}, {"<", TK_LT}, {">", TK_GT},
+{"+", TK_PLUS},{"-", TK_MINUS},{"*", TK_STAR},
+{"/", TK_SLASH},{"=", TK_ASSIGN},{"(", TK_OP_PAR},
+{")", TK_CL_PAR}, {";", TK_SMCOLON}
+};
+
+struct Symbol keywords[] = {
+    {"return", TK_RETURN}, {"if", TK_IF}, {"else", TK_ELSE}
 };
 
 // Returns the current token if it is of the specified kind and then moves to the next one, returns null otherwise
@@ -84,7 +90,7 @@ Token* tokenize(char* p) {
       continue;
     }
 
-    //Process symbols
+    // Process symbols
     for(int i = 0; symbols[i].name; i++) {
       char* name = symbols[i].name;
 
@@ -99,28 +105,19 @@ Token* tokenize(char* p) {
       goto cnt;
     }
 
-    // Return statement
-    if(strncmp(p, "return", 6) == 0 && !isAlphanum(p[6])) {
-      cur = new_token(TK_RETURN, cur, p, 6);
-      p += 6;
+    // Process keywords
+    for(int i = 0; keywords[i].name; i++) {
+      char* name = keywords[i].name;
 
-      continue;
-    }
+      if(!startsWith(p, keywords[i].name)) {
+        continue;
+      }
 
-    // If statement
-    if(strncmp(p, "if", 2) == 0 && !isAlphanum(p[2])) {
-      cur = new_token(TK_IF, cur, p, 2);
-      p += 2;
+      int len = strlen(name);
+      cur = new_token(keywords[i].kind, cur, p, len);
+      p += len;
 
-      continue;
-    }
-
-    // Else statement
-    if(strncmp(p, "else", 4) == 0 && !isAlphanum(p[4])) {
-      cur = new_token(TK_ELSE, cur, p, 4);
-      p += 4;
-
-      continue;
+      goto cnt;
     }
 
     // Digit
