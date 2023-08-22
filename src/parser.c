@@ -25,11 +25,10 @@ primary    = num | ident | "(" expr ")"
 #include "tokenizer.h"
 
 Node* code[100];
-
 LVar* locals;
 
 // Creates a new, non-numerical, node
-Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
+static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->lhs = lhs;
@@ -39,7 +38,7 @@ Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
 }
 
 // Creates a new numerical leaf node
-Node* new_node_num(int val) {
+static Node* new_node_num(int val) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
@@ -47,7 +46,7 @@ Node* new_node_num(int val) {
   return node;
 }
 
-LVar* find_lvar(Token* tok) {
+static LVar* find_lvar(Token* tok) {
   for (LVar* var = locals; var; var = var->next) {
     if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
       return var;

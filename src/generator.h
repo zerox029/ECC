@@ -10,7 +10,6 @@
 extern char* user_input;
 
 void generate_prologue();
-void generate_local_variable(Node*);
 void generate(Node*);
 
 #endif //ECC_GENERATOR_H

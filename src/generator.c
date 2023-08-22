@@ -19,18 +19,18 @@ void generate_prologue() {
   printf("  sub rsp, 8\n");
 }
 
-void generate_comparison(char* operator_instruction) {
+static void generate_comparison(char* operator_instruction) {
   printf("  cmp rax, rdi\n");
   printf("  %s al\n", operator_instruction);
   printf("  movzb rax, al\n");
 }
 
-void generate_division() {
+static void generate_division() {
   printf("  cqo\n");
   printf("  idiv rdi\n");
 }
 
-void generate_local_variable(Node* node) {
+static void generate_local_variable(Node* node) {
   if (node->kind != ND_LVAR) {
     error("The left-hand side value was not a variable.");
   }
@@ -40,7 +40,7 @@ void generate_local_variable(Node* node) {
   printf("  push rax\n");
 }
 
-void generate_return(Node* node) {
+static void generate_return(Node* node) {
   generate(node->lhs);
 
   printf("  pop rax\n");
@@ -49,7 +49,7 @@ void generate_return(Node* node) {
   printf("  ret\n");
 }
 
-void generate_if(Node* node) {
+static void generate_if(Node* node) {
   char* label = generateRandomLabel();
 
   generate(node->condition);
@@ -60,7 +60,7 @@ void generate_if(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
-void generate_if_else(Node* node) {
+static void generate_if_else(Node* node) {
   char* label = generateRandomLabel();
 
   generate(node->condition);
@@ -77,7 +77,7 @@ void generate_if_else(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
-void generate_while(Node* node) {
+static void generate_while(Node* node) {
   char* label = generateRandomLabel();
 
   printf(".Lbegin%s:\n", label);
@@ -90,7 +90,7 @@ void generate_while(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
-void generate_for(Node* node) {
+static void generate_for(Node* node) {
   char* label = generateRandomLabel();
 
   generate(node->lhs);

@@ -52,7 +52,6 @@ Token* consume(TokenKind);
 void expect(TokenKind);
 int expect_number();
 bool at_eof();
-Token* new_token(TokenKind, Token*, char*, int);
 Token* tokenize(char*);
 
 #endif //ECC_TOKENIZER_H

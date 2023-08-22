@@ -79,7 +79,7 @@ bool at_eof() {
 }
 
 // Creates a new token, adds it at the end of the tokens linked list and returns the created token
-Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
+static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
   Token* tok = calloc(1, sizeof(Token));
   tok->kind = kind;
   tok->str = str;

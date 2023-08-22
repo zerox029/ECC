@@ -48,11 +48,6 @@ struct LVar {
 
 extern Node* code[100];
 
-Node* new_node(NodeKind, Node*, Node*);
-Node* new_node_num(int);
-
-LVar* find_lvar(Token* tok);
-
 void program();
 Node* stmt();
 Node* expr();
