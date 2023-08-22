@@ -49,6 +49,30 @@ void generate_return(Node* node) {
   printf("  ret\n");
 }
 
+void generate_if(Node* node) {
+  generate(node->condition);
+  printf("  pop rax\n");
+  printf("  cmp rax, 0\n");
+  printf("  je  .LendXXX\n");
+  generate(node->lhs);
+  printf(".LendXXX:\n");
+}
+
+void generate_if_else(Node* node) {
+  generate(node->condition);
+  printf("  pop rax\n");
+  printf("  cmp rax, 0\n");
+  printf("  je  .LelseXXX\n");
+  generate(node->lhs);
+
+  // else
+  printf("  jmp .LendXXX\n");
+  printf(".LelseXXX:\n");
+  generate(node->rhs);
+
+  printf(".LendXXX:\n");
+}
+
 void generate(Node* node) {
   switch (node->kind) {
     case ND_NUM:
@@ -73,12 +97,11 @@ void generate(Node* node) {
       return;
 
     case ND_IF:
-      generate(node->lhs);
-      printf("  pop rax\n");
-      printf("  cmp rax, 0\n");
-      printf("  je  .LendXXX\n");
-      generate(node->rhs);
-      printf(".LendXXX:\n");
+      if(node->rhs) {
+        generate_if_else(node);
+      } else {
+        generate_if(node);
+      }
       return;
 
     case ND_RETURN:

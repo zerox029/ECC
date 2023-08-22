@@ -27,7 +27,8 @@ typedef enum {
   TK_SMCOLON, // ;
 
   TK_RETURN,  // return
-  TK_IF,       // if
+  TK_IF,      // if
+  TK_ELSE,    // else
 
   TK_LABEL,   // Labels
   TK_NUM,     // Numerical values

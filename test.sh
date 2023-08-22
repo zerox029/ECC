@@ -54,7 +54,9 @@ variables() {
 
 branching() {
   printf "Testing branching\n"
-  assert 5 'if(5==5) return 5;'
+  assert 1 'if(5==5) return 1;'
+  assert 1 'if(5==5) return 1; else return 0;'
+  assert 0 'if(4==5) return 1; else return 0;'
   printf "OK\n\n"
 }
 

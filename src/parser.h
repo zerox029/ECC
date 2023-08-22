@@ -27,8 +27,9 @@ typedef struct Node Node;
 
 struct Node {
   NodeKind kind;
-  Node* lhs;
-  Node* rhs;
+  Node* lhs; //left-hand side branch
+  Node* rhs; //right-hand side branch
+  Node* condition; //third branch (used for branching conditions)
   int val;
   int offset;
 };

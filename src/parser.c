@@ -65,7 +65,7 @@ void program() {
 }
 
 // stmt = expr ";"
-//        | "if" "(" expr ")" stmt
+//        | "if" "(" expr ")" stmt ("else" stmt)?
 //        | "return" expr ";"
 Node* stmt() {
   Node *node;
@@ -75,18 +75,25 @@ Node* stmt() {
     node->kind = ND_RETURN;
     node->lhs = expr();
     expect(TK_SMCOLON);
-  } else if(consume(TK_IF)) {
+  }
+  else if(consume(TK_IF)) {
     node = calloc(1, sizeof(node));
     node->kind = ND_IF;
 
     // Condition
     expect(TK_OP_PAR);
-    node->lhs = expr();
+    node->condition = expr();
     expect(TK_CL_PAR);
 
     // Consequent
-    node->rhs = stmt();
-  } else {
+    node->lhs = stmt();
+
+    // Alternative
+    if(consume(TK_ELSE)) {
+      node->rhs = stmt();
+    }
+  }
+  else {
     node = expr();
     expect(TK_SMCOLON);
   }
