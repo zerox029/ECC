@@ -50,27 +50,31 @@ void generate_return(Node* node) {
 }
 
 void generate_if(Node* node) {
+  char* label = generateRandomLabel();
+
   generate(node->condition);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
-  printf("  je  .LendXXX\n");
+  printf("  je  .Lend%s\n", label);
   generate(node->lhs);
-  printf(".LendXXX:\n");
+  printf(".Lend%s:\n", label);
 }
 
 void generate_if_else(Node* node) {
+  char* label = generateRandomLabel();
+
   generate(node->condition);
   printf("  pop rax\n");
   printf("  cmp rax, 0\n");
-  printf("  je  .LelseXXX\n");
+  printf("  je  .Lelse%s\n", label);
   generate(node->lhs);
 
   // else
-  printf("  jmp .LendXXX\n");
-  printf(".LelseXXX:\n");
+  printf("  jmp .Lend%s\n", label);
+  printf(".Lelse%s:\n", label);
   generate(node->rhs);
 
-  printf(".LendXXX:\n");
+  printf(".Lend%s:\n", label);
 }
 
 void generate(Node* node) {

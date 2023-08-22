@@ -11,4 +11,6 @@ void error(char*, ...);
 bool startsWith(char*, char*);
 bool isAlphanum(char);
 
+char* generateRandomLabel();
+
 #endif //ECC_SRC_UTILS_H_
