@@ -63,6 +63,7 @@ static LVar* find_lvar(Token* tok) {
   return NULL;
 }
 
+// program = stmt*
 void program() {
   code = vector_create();
   while (!at_eof()) {
