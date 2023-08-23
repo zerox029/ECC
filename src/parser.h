@@ -21,6 +21,7 @@ typedef enum {
   ND_IF,     // if
   ND_WHILE,  // while
   ND_FOR,    // for
+  ND_FUNC,    // Function
   ND_LVAR,   // Local variable
   ND_NUM,    // Integer
   ND_BLOCK   // Statement blocks ({ ... })
@@ -29,10 +30,11 @@ typedef enum {
 typedef struct Node Node;
 
 struct Node {
-  NodeKind kind;
-  Node** branches;
-  int val;
-  int offset;
+  NodeKind kind; // Type of the node
+  Node** branches; // Vector containing all branches
+  int val; // Numerical value for variables
+  int offset; // Relative position within the stack frame for variables
+  char* name; // Function name
 };
 
 typedef struct LVar LVar;

@@ -17,7 +17,9 @@ relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-")? primary
-primary    = num | ident | "(" expr ")"
+primary    = num
+             | label ("(" ")")?
+             | "(" expr ")"
 */
 
 #include <stdlib.h>
@@ -256,25 +258,37 @@ Node* primary() {
   Token* tok = consume(TK_LABEL);
   if (tok) {
     Node* node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
 
-    LVar* lvar = find_lvar(tok);
-    if (lvar) {
-      node->offset = lvar->offset;
-    } else {
-      lvar = calloc(1, sizeof(LVar));
-      lvar->next = locals;
-      lvar->name = tok->str;
-      lvar->len = tok->len;
+    if(isNextTokenOfType(TK_OP_PAR)) { // Function calls
+      node->kind = ND_FUNC;
 
-      if (locals) {
-        lvar->offset = locals->offset + 8;
+      node->name = malloc(tok->len + 1);
+      strncpy(node->name, tok->str, (size_t)tok->len);
+      node->name[tok->len + 1] = '\0';
+
+      expect(TK_OP_PAR);
+      expect(TK_CL_PAR);
+    } else { // Variables
+      node->kind = ND_LVAR;
+
+      LVar* lvar = find_lvar(tok);
+      if (lvar) {
+        node->offset = lvar->offset;
       } else {
-        lvar->offset = 0;
-      }
+        lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
 
-      node->offset = lvar->offset;
-      locals = lvar;
+        if (locals) {
+          lvar->offset = locals->offset + 8;
+        } else {
+          lvar->offset = 0;
+        }
+
+        node->offset = lvar->offset;
+        locals = lvar;
+      }
     }
 
     return node;

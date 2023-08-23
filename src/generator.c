@@ -17,7 +17,7 @@ void generate_prologue() {
 
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 8\n");
+  printf("  sub rsp, 16\n");
 }
 
 static void generate_comparison(char* operator_instruction) {
@@ -153,6 +153,10 @@ void generate(Node* node) {
 
     case ND_BLOCK:
       generate_block(node);
+      return;
+
+    case ND_FUNC:
+      printf("  call %s\n", node->name);
       return;
 
     case ND_RETURN:

@@ -3,9 +3,10 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./out/ECC "$input" > out/tmp.s
-  cc -o out/tmp out/tmp.s
+  ./out/ECC "$input" > out/tmp.s # Redirecting the output of ECC to an assembly file
+  cc -o out/tmp out/tmp.s out/func.o # Linking the generated assembly with the function file in an executable
   ./out/tmp
+
   actual="$?"
 
   if [ "$actual" = "$expected" ]; then
@@ -18,6 +19,7 @@ assert() {
 
 arithmetic() {
   printf "Testing artithmetic\n"
+
   assert 0 "return 0;"
   assert 42 "return 42;"
   assert 21 'return 5+20-4;'
@@ -26,11 +28,13 @@ arithmetic() {
   assert 15 'return 5*(9-6);'
   assert 4 'return (3+5)/2;'
   assert 10 'return -10+20;'
+
   printf "OK\n\n"
 }
 
 comparisons() {
   printf "Testing comparisons\n"
+
   assert 1 'return 10>5;'
   assert 0 'return 10<5;'
   assert 1 'return 5<10;'
@@ -40,27 +44,38 @@ comparisons() {
   assert 1 'return 10>=10;'
   assert 1 'return 10>=2;'
   assert 0 'return 10>=50;'
+
   printf "OK\n\n"
 }
 
 variables() {
   printf "Testing variables\n"
+
   assert 10 'a=5; return a+5;'
   assert 25 'a=20; b=5; return a+b;'
   assert 10 'foo=5; return foo+5;'
   assert 25 'foo=20; bar=5; return foo+bar;'
+
   printf "OK\n\n"
 }
 
 branching() {
   printf "Testing branching\n"
+
   assert 1 'if(5==5) return 1;'
   assert 1 'if(5==5) { return 1; } else { return 0; }'
   assert 0 'if(4==5) { return 1; } else { return 0; }'
   assert 10 'foo = 0; while(foo != 10) { foo = foo + 1; } return foo;'
   assert 10 'foo = 0; for(count = 0; count < 10; count = count + 1) { foo = foo + 1; } return foo;'
+  assert 80 'foo = 0; for(count = 0; count < 10; count = count + 1) { val = 2 * 4; foo = foo + val; } return foo;'
 
   printf "OK\n\n"
+}
+
+functions() {
+  printf "Testing functions\n"
+
+  assert 0 'helloWorld(); return 0;'
 }
 
 all() {
@@ -68,6 +83,9 @@ all() {
   comparisons
   variables
   branching
+  functions
 }
 
+
+cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
 all
