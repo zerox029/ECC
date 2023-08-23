@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include "generator.h"
-#include "parser.h"
+#include "parser/parser.h"
 #include "utils.h"
 #include "lib/vector.h"
 

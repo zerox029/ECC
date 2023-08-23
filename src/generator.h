@@ -5,7 +5,7 @@
 #ifndef ECC_GENERATOR_H
 #define ECC_GENERATOR_H
 
-#include "parser.h"
+#include "parser/parser.h"
 
 extern char* user_input;
 

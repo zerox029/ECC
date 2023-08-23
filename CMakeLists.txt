@@ -9,10 +9,11 @@ set(OUT_DIR ${CMAKE_SOURCE_DIR}/out)
 
 # Collect source files
 file(GLOB SRCS "${SRC_DIR}/*.c")
+file(GLOB PARSER_SRCS "${SRC_DIR}/parser/*.c")
 file(GLOB LIB_SRCS "${SRC_DIR}/lib/*.c")
 
 # Build the executable
-add_executable(ECC ${SRCS} ${LIB_SRCS})
+add_executable(ECC ${SRCS} ${LIB_SRCS} ${PARSER_SRCS})
 
 # Set output directory for the executable
 set_target_properties(ECC PROPERTIES

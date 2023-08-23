@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "parser.h"
+#include "parser/parser.h"
 #include "tokenizer.h"
 #include "generator.h"
 #include "lib/vector.h"

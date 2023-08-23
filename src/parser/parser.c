@@ -26,8 +26,8 @@ primary    = num
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
-#include "tokenizer.h"
-#include "lib/vector.h"
+#include "stmt.h"
+#include "../lib/vector.h"
 
 Node** code;
 LVar* locals;
@@ -69,90 +69,6 @@ void program() {
   while (!at_eof()) {
     vector_add(&code, stmt());
   }
-}
-
-// stmt = expr ";"
-//        | label ("(" ((primary ",")* primary)? ")")? "{" stmt* "}"
-//        | "{" stmt* "}"
-//        | "if" "(" expr ")" stmt ("else" stmt)?
-//        | "while" "(" expr ")" stmt
-//        | "for" "(" expr? ";" expr? ";" expr? ")" stmt
-//        | "return" expr ";"
-Node* stmt() {
-  Node* node = calloc(1, sizeof(Node));
-  node->branches = vector_create();
-
-  if(consume(TK_RETURN)) {
-    node->kind = ND_RETURN;
-    vector_add(&node->branches, expr());
-    expect(TK_SMCOLON);
-  }
-  else if(consume(TK_IF)) {
-    node->kind = ND_IF;
-    node->branches = vector_create();
-
-    // Condition
-    expect(TK_OP_PAR);
-    vector_add(&node->branches, expr());
-    expect(TK_CL_PAR);
-
-    // Consequent
-    vector_add(&node->branches, stmt());
-
-    // Alternative
-    if(consume(TK_ELSE)) {
-      vector_add(&node->branches, stmt());
-    }
-  }
-  else if(consume(TK_WHILE)) {
-    node->kind = ND_WHILE;
-
-    // Condition
-    expect(TK_OP_PAR);
-    vector_add(&node->branches, expr());
-    expect(TK_CL_PAR);
-
-    // Consequent
-    vector_add(&node->branches, stmt());
-  }
-  else if(consume(TK_FOR)) {
-    node->kind = ND_FOR;
-
-    expect(TK_OP_PAR);
-
-    if(!isNextTokenOfType(TK_SMCOLON)) {
-      vector_add(&node->branches, expr());
-    }
-    expect(TK_SMCOLON);
-
-    if(!isNextTokenOfType(TK_SMCOLON)) {
-      vector_add(&node->branches, expr());
-    }
-    expect(TK_SMCOLON);
-
-    if(!isNextTokenOfType(TK_OP_PAR)) {
-      vector_add(&node->branches, expr());
-    }
-
-    expect(TK_CL_PAR);
-
-    vector_add(&node->branches, stmt());
-  }
-  else if(consume(TK_OP_BLK)) {
-    node->kind = ND_BLOCK;
-
-    while(!isNextTokenOfType(TK_CL_BLK)) {
-      vector_add(&node->branches, stmt());
-    }
-
-    expect(TK_CL_BLK);
-  }
-  else {
-    node = expr();
-    expect(TK_SMCOLON);
-  }
-
-  return node;
 }
 
 // expr = assign

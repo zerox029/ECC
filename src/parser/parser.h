@@ -5,7 +5,7 @@
 #ifndef ECC_PARSER_H
 #define ECC_PARSER_H
 
-#include "tokenizer.h"
+#include "../tokenizer.h"
 
 typedef enum {
   ND_ASSIGN, // =
@@ -50,7 +50,6 @@ struct LVar {
 extern Node** code;
 
 void program();
-Node* stmt();
 Node* expr();
 Node* assign();
 Node* equality();
