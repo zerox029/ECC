@@ -17,6 +17,24 @@ assert() {
   fi
 }
 
+assertPrintf() {
+    expected="$1"
+    input="$2"
+
+    ./out/ECC "$input" > out/tmp.s # Redirecting the output of ECC to an assembly file
+    cc -o out/tmp out/tmp.s out/func.o # Linking the generated assembly with the function file in an executable
+    ./out/tmp
+
+    actual=$(./out/tmp | tail -1)
+
+    if [ "$actual" = "$expected" ]; then
+      echo "$input => $actual"
+    else
+      echo "$input => $expected expected, but got $actual"
+      exit 1
+    fi
+}
+
 arithmetic() {
   printf "Testing artithmetic\n"
 
@@ -75,7 +93,10 @@ branching() {
 functions() {
   printf "Testing functions\n"
 
-  assert 0 'helloWorld(); return 0;'
+  assertPrintf 'This works!' 'helloWorld(); return 0;'
+  assertPrintf '6' 'helloArgs(1,2,3); return 0;'
+
+  printf "OK\n\n"
 }
 
 all() {
@@ -85,7 +106,6 @@ all() {
   branching
   functions
 }
-
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
 all

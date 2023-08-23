@@ -21,7 +21,7 @@ typedef enum {
   ND_IF,     // if
   ND_WHILE,  // while
   ND_FOR,    // for
-  ND_FUNC,    // Function
+  ND_FN_CALL,// Function call
   ND_LVAR,   // Local variable
   ND_NUM,    // Integer
   ND_BLOCK   // Statement blocks ({ ... })

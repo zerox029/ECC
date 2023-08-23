@@ -18,7 +18,7 @@ add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-")? primary
 primary    = num
-             | label ("(" ")")?
+             | label ("(" ((primary ",")* primary)? ")")?
              | "(" expr ")"
 */
 
@@ -246,7 +246,9 @@ Node* unary() {
   return primary();
 }
 
-// primary = num | "(" expr ")"
+// primary = num
+//           | label ("(" ((primary ",")* primary)? ")")?
+//           | "(" expr ")"
 Node* primary() {
   if (consume(TK_OP_PAR)) {
     Node* node = expr();
@@ -260,13 +262,23 @@ Node* primary() {
     Node* node = calloc(1, sizeof(Node));
 
     if(isNextTokenOfType(TK_OP_PAR)) { // Function calls
-      node->kind = ND_FUNC;
+      node->kind = ND_FN_CALL;
 
       node->name = malloc(tok->len + 1);
       strncpy(node->name, tok->str, (size_t)tok->len);
       node->name[tok->len + 1] = '\0';
 
+      // Parameters
       expect(TK_OP_PAR);
+
+      if(!isNextTokenOfType(TK_CL_PAR)) {
+        node->branches = vector_create();
+        vector_add(&node->branches, primary());
+      }
+      while(consume(TK_COMMA)) {
+        vector_add(&node->branches, primary());
+      }
+
       expect(TK_CL_PAR);
     } else { // Variables
       node->kind = ND_LVAR;

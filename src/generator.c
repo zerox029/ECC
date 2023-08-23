@@ -17,7 +17,7 @@ void generate_prologue() {
 
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 16\n");
+  printf("  sub rsp, 16\n"); // TODO: Change this to get variable call frame length
 }
 
 static void generate_comparison(char* operator_instruction) {
@@ -106,10 +106,29 @@ static void generate_for(Node* node) {
   printf(".Lend%s:\n", label);
 }
 
-void generate_block(Node* node) {
+static void generate_block(Node* node) {
   for(int i = 0; i < vector_size(node->branches); i++) {
     generate(node->branches[i]);
   }
+}
+
+static void generate_function_call(Node* node) {
+  // Pushing the parameters in reverse order
+  const char* argumentRegisters[6] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+  if(node->branches)
+  {
+    size_t paramatersLength = vector_size(node->branches);
+    for(int i = paramatersLength - 1; i >= 0; i--) {
+      generate(node->branches[i]);
+    }
+
+    for(int i = 0; i < paramatersLength; i++) {
+      printf("  pop %s\n", argumentRegisters[i]);
+    }
+  }
+
+  // Function call
+  printf("  call %s\n", node->name);
 }
 
 void generate(Node* node) {
@@ -155,8 +174,8 @@ void generate(Node* node) {
       generate_block(node);
       return;
 
-    case ND_FUNC:
-      printf("  call %s\n", node->name);
+    case ND_FN_CALL:
+      generate_function_call(node);
       return;
 
     case ND_RETURN:
