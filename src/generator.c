@@ -127,6 +127,8 @@ static void generate_function_call(Node* node) {
     }
   }
 
+  //TODO: 16 bytes alignment
+
   // Function call
   printf("  call %s\n", node->name);
 }

@@ -5,6 +5,7 @@
 /* Current production rules:
 program    = stmt*
 stmt       = expr ";"
+             | label ("(" ((primary ",")* primary)? ")")? "{" stmt* "}"
              | "{" stmt* "}"
              | "if" "(" expr ")" stmt ("else" stmt)?
              | "while" "(" expr ")" stmt
@@ -28,7 +29,7 @@ primary    = num
 #include "tokenizer.h"
 #include "lib/vector.h"
 
-Node* code[100];
+Node** code;
 LVar* locals;
 
 // Creates a new, non-numerical, node
@@ -63,15 +64,14 @@ static LVar* find_lvar(Token* tok) {
 }
 
 void program() {
-  int i = 0;
+  code = vector_create();
   while (!at_eof()) {
-    code[i++] = stmt();
+    vector_add(&code, stmt());
   }
-
-  code[i] = NULL;
 }
 
 // stmt = expr ";"
+//        | label ("(" ((primary ",")* primary)? ")")? "{" stmt* "}"
 //        | "{" stmt* "}"
 //        | "if" "(" expr ")" stmt ("else" stmt)?
 //        | "while" "(" expr ")" stmt
@@ -280,6 +280,20 @@ Node* primary() {
       }
 
       expect(TK_CL_PAR);
+
+      // Function declaration
+      // TODO: Do this in stmt instead
+      if(consume(TK_OP_BLK)) {
+        node->kind = ND_FN_DEC;
+        node->branches = vector_create();
+
+        while(!isNextTokenOfType(TK_CL_BLK)) {
+          vector_add(&node->branches, stmt());
+        }
+
+        expect(TK_CL_BLK);
+      }
+
     } else { // Variables
       node->kind = ND_LVAR;
 

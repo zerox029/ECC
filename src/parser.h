@@ -22,6 +22,7 @@ typedef enum {
   ND_WHILE,  // while
   ND_FOR,    // for
   ND_FN_CALL,// Function call
+  ND_FN_DEC, // Function creation
   ND_LVAR,   // Local variable
   ND_NUM,    // Integer
   ND_BLOCK   // Statement blocks ({ ... })
@@ -46,7 +47,7 @@ struct LVar {
   int offset;
 };
 
-extern Node* code[100];
+extern Node** code;
 
 void program();
 Node* stmt();

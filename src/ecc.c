@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "tokenizer.h"
 #include "generator.h"
+#include "lib/vector.h"
 
 int main(int argc, char** argv) {
   if (argc != 2) {
@@ -15,7 +16,7 @@ int main(int argc, char** argv) {
 
   generate_prologue();
 
-  for (int i = 0; code[i]; i++) {
+  for (int i = 0; i < vector_size(code); i++) {
     generate(code[i]);
   }
 
