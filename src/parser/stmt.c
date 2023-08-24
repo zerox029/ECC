@@ -142,7 +142,22 @@ Node* singular_expression() {
   node->branches = vector_create();
 
   node = expr();
-  expect(TK_SMCOLON);
+
+  // Function declaration
+  if(isNextTokenOfType(TK_OP_BLK)) {
+    node->kind = ND_FN_DEC;
+
+    // Zero parameters defined
+    if(node->branches == NULL) {
+      node->branches = vector_create();
+    }
+
+    // Function body
+    Node* body = stmt();
+    vector_add(&node->branches, body);
+  } else {
+    expect(TK_SMCOLON);
+  }
 
   return node;
 }

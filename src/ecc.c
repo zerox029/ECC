@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
   token = tokenize(user_input);
   program();
 
-  generate_prologue();
+  generate_file_prologue();
 
   for (int i = 0; i < vector_size(code); i++) {
     generate(code[i]);

@@ -10,11 +10,13 @@
 
 char* user_input = "";
 
-void generate_prologue() {
+void generate_file_prologue() {
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
-  printf("main:\n");
+  //printf("main:\n");
+}
 
+static void generate_function_prologue() {
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
   printf("  sub rsp, 16\n"); // TODO: Change this to get variable call frame length
@@ -42,12 +44,21 @@ static void generate_local_variable(Node* node) {
 }
 
 static void generate_return(Node* node) {
-  generate(node->branches[0]);
+  if(node->branches[0]->kind != ND_FN_CALL) {
+    generate(node->branches[0]);
 
-  printf("  pop rax\n");
-  printf("  mov rsp, rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
+    printf("  pop rax\n");
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+  } else { // Don't pop twice if returning a function return value
+    generate(node->branches[0]);
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+  }
+
+
 }
 
 static void generate_if(Node* node) {
@@ -133,6 +144,12 @@ static void generate_function_call(Node* node) {
   printf("  call %s\n", node->name);
 }
 
+static void generate_function_declaration(Node* node) {
+  printf("%s:\n", node->name);
+  generate_function_prologue();
+  generate(node->branches[0]);
+}
+
 void generate(Node* node) {
   switch (node->kind) {
     case ND_NUM:
@@ -178,6 +195,10 @@ void generate(Node* node) {
 
     case ND_FN_CALL:
       generate_function_call(node);
+      return;
+
+    case ND_FN_DEC:
+      generate_function_declaration(node);
       return;
 
     case ND_RETURN:

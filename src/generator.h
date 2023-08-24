@@ -9,7 +9,7 @@
 
 extern char* user_input;
 
-void generate_prologue();
+void generate_file_prologue();
 void generate(Node*);
 
 #endif //ECC_GENERATOR_H

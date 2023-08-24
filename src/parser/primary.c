@@ -45,7 +45,8 @@ Node* label_node() {
 }
 
 Node* function(Token** tok) {
-  if(isNextTokenOfType(TK_OP_PAR)) { // Function calls
+  // Function calls
+  if(isNextTokenOfType(TK_OP_PAR)) {
     Node* node = calloc(1, sizeof(Node));
 
     node->kind = ND_FN_CALL;
@@ -66,19 +67,6 @@ Node* function(Token** tok) {
     }
 
     expect(TK_CL_PAR);
-
-    // Function declaration
-    // TODO: Do this in stmt instead
-    if(consume(TK_OP_BLK)) {
-      node->kind = ND_FN_DEC;
-      node->branches = vector_create();
-
-      while(!isNextTokenOfType(TK_CL_BLK)) {
-        vector_add(&node->branches, stmt());
-      }
-
-      expect(TK_CL_BLK);
-    }
 
     return node;
   }
