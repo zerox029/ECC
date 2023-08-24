@@ -19,5 +19,7 @@ struct LVar {
 
 LVar* find_lvar(Token*, char*);
 LVar* add_symbol_to_table(Token*, char*);
+size_t get_table_size();
+size_t get_function_table_size(char*);
 
 #endif //ECC_SRC_PARSER_SYMBOLTABLE_H_

@@ -6,6 +6,7 @@
 #include "generator.h"
 #include "parser/parser.h"
 #include "utils.h"
+#include "parser/symbolTable.h"
 #include "lib/vector.h"
 
 char* user_input = "";
@@ -16,10 +17,10 @@ void generate_file_prologue() {
   //printf("main:\n");
 }
 
-static void generate_function_prologue() {
+static void generate_function_prologue(size_t variable_count) {
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 16\n"); // TODO: Change this to get variable call frame length
+  printf("  sub rsp, %zu\n", variable_count * 8);
 }
 
 static void generate_comparison(char* operator_instruction) {
@@ -57,8 +58,6 @@ static void generate_return(Node* node) {
     printf("  pop rbp\n");
     printf("  ret\n");
   }
-
-
 }
 
 static void generate_if(Node* node) {
@@ -146,7 +145,7 @@ static void generate_function_call(Node* node) {
 
 static void generate_function_declaration(Node* node) {
   printf("%s:\n", node->name);
-  generate_function_prologue();
+  generate_function_prologue(get_function_table_size(node->name));
   generate(node->branches[0]);
 }
 

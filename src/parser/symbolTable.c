@@ -6,17 +6,17 @@
 #include <stdlib.h>
 #include "symbolTable.h"
 
-LVar* symbol_table;
+static LVar* symbol_table;
 
-bool var_already_exists(const LVar* var, const Token* tok, const char* function_name) {
+static bool var_is_equivalent(const LVar* var, const Token* tok, const char* function_name) {
   return var->len == tok->len
     && !memcmp(tok->str, var->name, var->len)
-    && var->function_name == function_name;
+    && !strcmp(var->function_name, function_name);
 }
 
 LVar* find_lvar(Token* tok, char* function_name) {
   for (LVar* var = symbol_table; var; var = var->next) {
-    if (var_already_exists(var, tok, function_name)) {
+    if (var_is_equivalent(var, tok, function_name)) {
       return var;
     }
   }
@@ -39,4 +39,27 @@ LVar* add_symbol_to_table(Token* tok, char* function_name) {
   }
 
   symbol_table = lvar;
+
+  return lvar;
+}
+
+size_t get_table_size() {
+  size_t size = 0;
+  for (LVar* var = symbol_table; var; var = var->next) {
+    size++;
+  }
+
+  return size;
+}
+
+size_t get_function_table_size(char* function_name) {
+  size_t size = 0;
+  for (LVar* var = symbol_table; var; var = var->next) {
+    if(!strcmp(var->function_name, function_name))
+    {
+      size++;
+    }
+  }
+
+  return size;
 }
