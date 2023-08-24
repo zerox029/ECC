@@ -49,7 +49,11 @@ struct LVar {
 
 extern Node** code;
 
+Node* new_node(NodeKind, Node*, Node*);
+Node* new_node_num(int);
+
 void program();
+Node* stmt();
 Node* expr();
 Node* assign();
 Node* equality();

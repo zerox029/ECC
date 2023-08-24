@@ -5,7 +5,6 @@
 #ifndef ECC_SRC_PARSER_STMT_H_
 #define ECC_SRC_PARSER_STMT_H_
 
-Node* stmt();
 Node* return_statement();
 Node* if_else_statement();
 Node* while_loop();

@@ -24,16 +24,13 @@ primary    = num
 */
 
 #include <stdlib.h>
-#include <string.h>
 #include "parser.h"
-#include "stmt.h"
 #include "../lib/vector.h"
 
 Node** code;
-LVar* locals;
 
 // Creates a new, non-numerical, node
-static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
+Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
 
@@ -45,22 +42,12 @@ static Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
 }
 
 // Creates a new numerical leaf node
-static Node* new_node_num(int val) {
+Node* new_node_num(int val) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
 
   return node;
-}
-
-static LVar* find_lvar(Token* tok) {
-  for (LVar* var = locals; var; var = var->next) {
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
-      return var;
-    }
-  }
-
-  return NULL;
 }
 
 // program = stmt*
@@ -161,81 +148,4 @@ Node* unary() {
   }
 
   return primary();
-}
-
-// primary = num
-//           | label ("(" ((primary ",")* primary)? ")")?
-//           | "(" expr ")"
-Node* primary() {
-  if (consume(TK_OP_PAR)) {
-    Node* node = expr();
-    expect(TK_CL_PAR);
-
-    return node;
-  }
-
-  Token* tok = consume(TK_LABEL);
-  if (tok) {
-    Node* node = calloc(1, sizeof(Node));
-
-    if(isNextTokenOfType(TK_OP_PAR)) { // Function calls
-      node->kind = ND_FN_CALL;
-
-      node->name = malloc(tok->len + 1);
-      strncpy(node->name, tok->str, (size_t)tok->len);
-      node->name[tok->len + 1] = '\0';
-
-      // Parameters
-      expect(TK_OP_PAR);
-
-      if(!isNextTokenOfType(TK_CL_PAR)) {
-        node->branches = vector_create();
-        vector_add(&node->branches, primary());
-      }
-      while(consume(TK_COMMA)) {
-        vector_add(&node->branches, primary());
-      }
-
-      expect(TK_CL_PAR);
-
-      // Function declaration
-      // TODO: Do this in stmt instead
-      if(consume(TK_OP_BLK)) {
-        node->kind = ND_FN_DEC;
-        node->branches = vector_create();
-
-        while(!isNextTokenOfType(TK_CL_BLK)) {
-          vector_add(&node->branches, stmt());
-        }
-
-        expect(TK_CL_BLK);
-      }
-
-    } else { // Variables
-      node->kind = ND_LVAR;
-
-      LVar* lvar = find_lvar(tok);
-      if (lvar) {
-        node->offset = lvar->offset;
-      } else {
-        lvar = calloc(1, sizeof(LVar));
-        lvar->next = locals;
-        lvar->name = tok->str;
-        lvar->len = tok->len;
-
-        if (locals) {
-          lvar->offset = locals->offset + 8;
-        } else {
-          lvar->offset = 0;
-        }
-
-        node->offset = lvar->offset;
-        locals = lvar;
-      }
-    }
-
-    return node;
-  }
-
-  return new_node_num(expect_number());
 }
