@@ -2,6 +2,8 @@
 // Created by emma on 21/08/23.
 //
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -47,7 +49,10 @@ char* generateRandomLabel() {
   const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const int charsetSize = sizeof(charset) - 1;
 
-  srand(time(NULL));
+  struct timespec spec;
+  clock_gettime(CLOCK_REALTIME, &spec);
+
+  srand(spec.tv_nsec);
 
   char* label = (char*)malloc(4);  // Allocate memory for the label (3 characters + null terminator)
   if (!label) {
