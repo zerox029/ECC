@@ -5,18 +5,7 @@
 #include <string.h>
 #include "../lib/vector.h"
 #include "primary.h"
-
-LVar* symbol_table;
-
-static LVar* find_lvar(Token* tok) {
-  for (LVar* var = symbol_table; var; var = var->next) {
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len) && var->function_name == current_function_name) {
-      return var;
-    }
-  }
-
-  return NULL;
-}
+#include "symbolTable.h"
 
 // primary = num
 //           | label
@@ -79,25 +68,12 @@ Node* variable(Token** tok) {
 
   node->kind = ND_LVAR;
 
-  LVar* lvar = find_lvar(*tok);
+  LVar* lvar = find_lvar(*tok, current_function_name);
   if (lvar) { // If variable was already declared, reuse its offset
     node->offset = lvar->offset;
   } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
-    lvar = calloc(1, sizeof(LVar));
-    lvar->next = symbol_table;
-    lvar->name = (*tok)->str;
-    lvar->function_name = current_function_name;
-    lvar->len = (*tok)->len;
-
-    if (symbol_table && symbol_table->function_name == current_function_name) {
-      lvar->offset = symbol_table->offset + 8;
-    } else {
-      lvar->offset = 0;
-    }
-
+    lvar = add_symbol_to_table(*tok, current_function_name);
     node->offset = lvar->offset;
-    symbol_table = lvar;
-    0;
   }
 
   return node;
