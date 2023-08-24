@@ -95,19 +95,19 @@ functions() {
 
   assertPrintf 'This works!' 'main() { helloWorld(); return 0; }'
   assertPrintf '6' 'main() { helloArgs(1,2,3); return 0; }'
+  assert 5 'five() { foo = 5; return foo; } main() { return five(); }'
+  assert 12 'add(a, b) { return a + b; } main() { return add(5,7); }'
+  assert 200 'foo(a, b, c) { foo = 25; return a * b + c + foo; } main() { return foo(25,4,75); }'
 
   printf "OK\n\n"
 }
 
 all() {
-  #arithmetic
-  #comparisons
-  #variables
-  #branching
-  #functions
-
-  assert 5 'five() { foo = 5; return foo; }
-  main() { return five(); }'
+  arithmetic
+  comparisons
+  variables
+  branching
+  functions
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions

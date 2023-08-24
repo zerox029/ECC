@@ -10,6 +10,7 @@
 #include "lib/vector.h"
 
 char* user_input = "";
+const char* argumentRegisters[6] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
 void generate_file_prologue() {
   printf(".intel_syntax noprefix\n");
@@ -42,11 +43,20 @@ static void generate_local_variable(Node* node) {
   }
 
   printf("  mov rax, rbp\n");
-
-  if(node->offset > 0)
-    printf("  sub rax, %d\n", node->offset);
-
+  printf("  sub rax, %d\n", node->offset);
   printf("  push rax\n");
+}
+
+static void generate_function_parameter(Node* node, int argument_id) {
+  printf("  mov rax, rbp\n");
+  printf("  sub rax, %d\n", node->offset);
+  printf("  push rax\n");
+
+  printf("  push %s\n", argumentRegisters[argument_id]);
+  printf("  pop rdi\n");
+  printf("  pop rax\n");
+  printf("  mov [rax], rdi\n");
+  printf("  push rdi\n");
 }
 
 static void generate_return(Node* node) {
@@ -129,7 +139,6 @@ static void generate_block(Node* node) {
 
 static void generate_function_call(Node* node) {
   // Pushing the parameters in reverse order
-  const char* argumentRegisters[6] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if(node->branches)
   {
     size_t paramatersLength = vector_size(node->branches);
@@ -151,7 +160,14 @@ static void generate_function_call(Node* node) {
 static void generate_function_declaration(Node* node) {
   printf("%s:\n", node->name);
   generate_function_prologue(get_function_table_size(node->name));
-  generate(node->branches[0]);
+
+  for(int i = 0; i < vector_size(node->branches); i++) {
+    if(node->branches[i]->kind == ND_LVAR) {
+      generate_function_parameter(node->branches[i], i);
+    } else {
+      generate(node->branches[i]);
+    }
+  }
 }
 
 void generate(Node* node) {

@@ -5,6 +5,7 @@
 #ifndef ECC_SRC_PARSER_SYMBOLTABLE_H_
 #define ECC_SRC_PARSER_SYMBOLTABLE_H_
 
+#include <stddef.h>
 #include "../tokenizer.h"
 
 typedef struct LVar LVar;
@@ -21,5 +22,6 @@ LVar* find_lvar(Token*, char*);
 LVar* add_symbol_to_table(Token*, char*);
 size_t get_table_size();
 size_t get_function_table_size(char*);
+void set_function_name_for_last_n_variables(char*, int);
 
 #endif //ECC_SRC_PARSER_SYMBOLTABLE_H_

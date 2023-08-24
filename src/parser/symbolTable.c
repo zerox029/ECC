@@ -63,3 +63,11 @@ size_t get_function_table_size(char* function_name) {
 
   return size;
 }
+
+void set_function_name_for_last_n_variables(char* function_name, int variable_count) {
+  LVar* current = symbol_table;
+  for(int i = 0; i < variable_count; i++) {
+    current->function_name = function_name;
+    current = symbol_table->next;
+  }
+}

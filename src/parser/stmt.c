@@ -4,6 +4,7 @@
 
 #include "parser.h"
 #include "stmt.h"
+#include "symbolTable.h"
 #include "../lib/vector.h"
 
 // stmt = expr ";"
@@ -148,6 +149,11 @@ Node* singular_expression() {
     node->kind = ND_FN_DEC;
 
     current_function_name = node->name;
+
+    // Set the function name for the function parameters
+    if(node->branches) {
+      set_function_name_for_last_n_variables(node->name, vector_size(node->branches));
+    }
 
     // Zero parameters defined
     if(node->branches == NULL) {
