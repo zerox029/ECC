@@ -43,11 +43,13 @@ typedef struct LVar LVar;
 struct LVar {
   LVar* next;
   char* name;
+  char* function_name;
   int len;
   int offset;
 };
 
 extern Node** code;
+extern char* current_function_name;
 
 Node* new_node(NodeKind, Node*, Node*);
 Node* new_node_num(int);

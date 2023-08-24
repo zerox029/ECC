@@ -6,11 +6,11 @@
 #include "../lib/vector.h"
 #include "primary.h"
 
-LVar* locals;
+LVar* symbol_table;
 
 static LVar* find_lvar(Token* tok) {
-  for (LVar* var = locals; var; var = var->next) {
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+  for (LVar* var = symbol_table; var; var = var->next) {
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len) && var->function_name == current_function_name) {
       return var;
     }
   }
@@ -84,18 +84,20 @@ Node* variable(Token** tok) {
     node->offset = lvar->offset;
   } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
     lvar = calloc(1, sizeof(LVar));
-    lvar->next = locals;
+    lvar->next = symbol_table;
     lvar->name = (*tok)->str;
+    lvar->function_name = current_function_name;
     lvar->len = (*tok)->len;
 
-    if (locals) {
-      lvar->offset = locals->offset + 8;
+    if (symbol_table && symbol_table->function_name == current_function_name) {
+      lvar->offset = symbol_table->offset + 8;
     } else {
       lvar->offset = 0;
     }
 
     node->offset = lvar->offset;
-    locals = lvar;
+    symbol_table = lvar;
+    0;
   }
 
   return node;

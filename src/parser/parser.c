@@ -28,6 +28,7 @@ primary    = num
 #include "../lib/vector.h"
 
 Node** code;
+char* current_function_name = "GLOBAL";
 
 // Creates a new, non-numerical, node
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {

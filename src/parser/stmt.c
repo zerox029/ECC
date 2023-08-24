@@ -147,6 +147,8 @@ Node* singular_expression() {
   if(isNextTokenOfType(TK_OP_BLK)) {
     node->kind = ND_FN_DEC;
 
+    current_function_name = node->name;
+
     // Zero parameters defined
     if(node->branches == NULL) {
       node->branches = vector_create();
