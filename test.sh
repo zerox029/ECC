@@ -93,8 +93,8 @@ branching() {
 functions() {
   printf "Testing functions\n"
 
-  assertPrintf 'This works!' 'helloWorld(); return 0;'
-  #assertPrintf '6' 'helloArgs(1,2,3); return 0;'
+  assertPrintf 'This works!' 'main() { helloWorld(); return 0; }'
+  assertPrintf '6' 'main() { helloArgs(1,2,3); return 0; }'
 
   printf "OK\n\n"
 }
@@ -107,8 +107,7 @@ all() {
   functions
 
   #assert 5 'five() { foo = 5; return foo; }
-#main() { return five(); }'
-printf "OK!"
+  #main() { return five(); }'
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
