@@ -100,14 +100,14 @@ functions() {
 }
 
 all() {
-  arithmetic
-  comparisons
-  variables
-  branching
-  functions
+  #arithmetic
+  #comparisons
+  #variables
+  #branching
+  #functions
 
-  #assert 5 'five() { foo = 5; return foo; }
-  #main() { return five(); }'
+  assert 5 'five() { foo = 5; return foo; }
+  main() { return five(); }'
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions

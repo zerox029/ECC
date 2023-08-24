@@ -20,7 +20,9 @@ void generate_file_prologue() {
 static void generate_function_prologue(size_t variable_count) {
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, %zu\n", variable_count * 8);
+
+  if(variable_count > 0)
+    printf("  sub rsp, %zu\n", variable_count * 8);
 }
 
 static void generate_comparison(char* operator_instruction) {
@@ -40,7 +42,10 @@ static void generate_local_variable(Node* node) {
   }
 
   printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->offset);
+
+  if(node->offset > 0)
+    printf("  sub rax, %d\n", node->offset);
+
   printf("  push rax\n");
 }
 

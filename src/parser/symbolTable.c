@@ -35,7 +35,7 @@ LVar* add_symbol_to_table(Token* tok, char* function_name) {
   if (symbol_table && symbol_table->function_name == function_name) {
     lvar->offset = symbol_table->offset + 8;
   } else {
-    lvar->offset = 0;
+    lvar->offset = 8;
   }
 
   symbol_table = lvar;
