@@ -10,34 +10,36 @@
 typedef struct Token Token;
 
 typedef enum {
-  TK_EQ,      // ==
-  TK_NE,      // !=
-  TK_LT,      // <
-  TK_LTE,     // <=
-  TK_GT,      // >
-  TK_GTE,     // >=
+  TK_EQ,        // ==
+  TK_NE,        // !=
+  TK_LT,        // <
+  TK_LTE,       // <=
+  TK_GT,        // >
+  TK_GTE,       // >=
+  TK_INCREMENT, // ++
+  TK_DECREMENT, // --
 
-  TK_PLUS,    // +
-  TK_MINUS,   // -
-  TK_STAR,    // *
-  TK_SLASH,   // /
-  TK_ASSIGN,  // =
-  TK_OP_PAR,  // (
-  TK_CL_PAR,  // )
-  TK_OP_BLK,  // {
-  TK_CL_BLK,  // }
-  TK_SMCOLON, // ;
-  TK_COMMA,   // ,
+  TK_PLUS,      // +
+  TK_MINUS,     // -
+  TK_STAR,      // *
+  TK_SLASH,     // /
+  TK_ASSIGN,    // =
+  TK_OP_PAR,    // (
+  TK_CL_PAR,    // )
+  TK_OP_BLK,    // {
+  TK_CL_BLK,    // }
+  TK_SMCOLON,   // ;
+  TK_COMMA,     // ,
 
-  TK_RETURN,  // return
-  TK_IF,      // if
-  TK_ELSE,    // else
-  TK_WHILE,   // while
-  TK_FOR,     // for
+  TK_RETURN,    // return
+  TK_IF,        // if
+  TK_ELSE,      // else
+  TK_WHILE,     // while
+  TK_FOR,       // for
 
-  TK_LABEL,   // Labels
-  TK_NUM,     // Numerical values
-  TK_EOF,     // End of file
+  TK_LABEL,     // Labels
+  TK_NUM,       // Numerical values
+  TK_EOF,       // End of file
 } TokenKind;
 
 struct Token {

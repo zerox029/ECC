@@ -17,7 +17,7 @@ equality   = relational ("==" relational | "!=" relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-")? primary
+unary      = ("+" | "-")? primary | primary ("++" | "--")? primary
 primary    = num
              | label ("(" ((primary ",")* primary)? ")")?
              | "(" expr ")"
@@ -139,13 +139,19 @@ Node* mul() {
   }
 }
 
-// unary = ("+" | "-")? primary
+// unary = ("+" | "-")? primary | ("++" | "--")? primary
 Node* unary() {
   if (consume(TK_PLUS)) {
     return primary();
   }
   if (consume(TK_MINUS)) {
     return new_node(ND_SUB, new_node_num(0), primary());
+  }
+  if(consume(TK_INCREMENT)) {
+    return new_node(ND_ADD, new_node_num(1), primary());
+  }
+  if(consume(TK_DECREMENT)) {
+    return new_node(ND_SUB, primary(), new_node_num(1));
   }
 
   return primary();

@@ -46,6 +46,8 @@ arithmetic() {
   assert 15 'main() {return 5*(9-6);}'
   assert 4 'main() {return (3+5)/2;}'
   assert 10 'main() {return -10+20;}'
+  assert 2 'main() {return ++1;}'
+  assert 0 'main() {return --1;}'
 
   printf "OK\n\n"
 }
@@ -105,7 +107,7 @@ functions() {
 fibonacci() {
   assert 55 "
 fib(n)
- {
+{
      a = 0;
      b = 1;
      c = 0;
@@ -118,10 +120,10 @@ fib(n)
      }
      return b;
  }
- main()
- {
-     return fib(10);
- }"
+main()
+{
+   return fib(10);
+}"
 }
 
 all() {
@@ -133,4 +135,4 @@ all() {
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
-fibonacci
+all

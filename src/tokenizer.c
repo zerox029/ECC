@@ -19,11 +19,12 @@ struct Symbol {
 
 struct Symbol symbols[] = {
 {"==", TK_EQ}, {"!=", TK_NE}, {"<=", TK_LTE},
-{">=", TK_GTE}, {"<", TK_LT}, {">", TK_GT},
-{"+", TK_PLUS},{"-", TK_MINUS},{"*", TK_STAR},
-{"/", TK_SLASH},{"=", TK_ASSIGN},{"(", TK_OP_PAR},
-{")", TK_CL_PAR}, {";", TK_SMCOLON}, {"{", TK_OP_BLK},
-{"}", TK_CL_BLK}, {",", TK_COMMA}
+{">=", TK_GTE}, {"++", TK_INCREMENT }, {"--", TK_DECREMENT},
+{"<", TK_LT}, {">", TK_GT}, {"+", TK_PLUS}, {"-", TK_MINUS},
+{"*", TK_STAR}, {"/", TK_SLASH}, {"=", TK_ASSIGN},
+{"(", TK_OP_PAR}, {")", TK_CL_PAR}, {";", TK_SMCOLON},
+{"{", TK_OP_BLK}, {"}", TK_CL_BLK}, {",", TK_COMMA}
+
 };
 
 struct Symbol keywords[] = {
