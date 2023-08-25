@@ -40,7 +40,7 @@ Node* function(Token** tok) {
 
     node->kind = ND_FN_CALL;
 
-    node->name = malloc((*tok)->len + 1);
+    node->name = calloc(1, (*tok)->len + 1);
     strncpy(node->name, (*tok)->str, (size_t)(*tok)->len);
     node->name[(*tok)->len + 1] = '\0';
 

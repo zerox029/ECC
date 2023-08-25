@@ -147,7 +147,6 @@ Token* tokenize(char* p) {
     // Label
     if (isAlphanum(*p)) {
       cur = new_token(TK_LABEL, cur, p++, 1);
-      cur->len = 1;
 
       while (isAlphanum(*p)) {
         cur->len++;

@@ -102,6 +102,28 @@ functions() {
   printf "OK\n\n"
 }
 
+fibonacci() {
+  assert 55 "
+fib(n)
+ {
+     a = 0;
+     b = 1;
+     c = 0;
+     if (n == 0)
+         return a;
+     for (i = 2; i <= n; i = i + 1) {
+         c = a + b;
+         a = b;
+         b = c;
+     }
+     return b;
+ }
+ main()
+ {
+     return fib(10);
+ }"
+}
+
 all() {
   arithmetic
   comparisons
@@ -111,4 +133,4 @@ all() {
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
-all
+fibonacci
