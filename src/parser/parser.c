@@ -3,27 +3,27 @@
 //
 
 /* Current production rules:
-program    = stmt*
-stmt       = expr ";"
-             | label ("(" ((primary ",")* primary)? ")")? "{" stmt* "}"
-             | "{" stmt* "}"
-             | "if" "(" expr ")" stmt ("else" stmt)?
-             | "while" "(" expr ")" stmt
-             | "for" "(" expr? ";" expr? ";" expr? ")" stmt
-             | "return" expr ";"
-expr       = assign
-assign     = equality ("=" assign)?
-equality   = relational ("==" relational | "!=" relational)*
-relational = add ("<" add | "<=" add | ">" add | ">=" add)*
-add        = mul ("+" mul | "-" mul)*
-mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-")? primary
-             | ("++" | "--")? unary
-             | "*" unary
-             | "&" unary
-primary    = num
-             | label ("(" ((primary ",")* primary)? ")")?
-             | "(" expr ")"
+program     = (func | stmt)*
+func        = int label "(" ((primary, ",")* primary)? ")" "{" stmt* "}"
+stmt        = expr ";"
+              | "{" stmt; "}"
+              | "if" "(" equality ")" stmt ("else" stmt)?
+              | "while" "(" equality ")" stmt
+              | "for" "(" assign? ";" equality? ";" equality? ")" stmt
+              | "return" expr ";"
+expr        = assign | equality
+assign      = "int" label "=" equality
+equality    = relational ("==" relational | "!=" relational)*
+relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
+add         = mul ("+" mul | "-" mul)*
+mul         = unary ("*" unary | "/" unary)*
+unary       =  ("+" | "-")? primary
+               | ("++" | "--")? unary
+               | "*" unary
+               | "&" unary
+primary     = num
+              | label ("(" ((primary ",")* primary)? ")")?
+              | "(" expr ")"
 */
 
 #include <stdlib.h>
@@ -33,11 +33,14 @@ primary    = num
 Node** code;
 char* current_function_name = "GLOBAL";
 
+
 // Creates a new, non-numerical, node
 // TODO: Update the parameters to a VAlist
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
+
+  int a,b,c;
 
   node->branches = vector_create();
   vector_add(&node->branches, lhs);
