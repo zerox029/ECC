@@ -30,6 +30,7 @@ typedef enum {
   TK_CL_BLK,    // }
   TK_SMCOLON,   // ;
   TK_COMMA,     // ,
+  TK_AMPERSAND, // &
 
   TK_RETURN,    // return
   TK_IF,        // if
