@@ -34,6 +34,7 @@ Node** code;
 char* current_function_name = "GLOBAL";
 
 // Creates a new, non-numerical, node
+// TODO: Update the parameters to a VAlist
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -142,7 +143,10 @@ Node* mul() {
   }
 }
 
-// unary = ("+" | "-")? primary | ("++" | "--")? unary
+// unary = ("+" | "-")? primary
+//         | ("++" | "--")? unary
+//         | "*" unary
+//         | "&" unary
 Node* unary() {
   if (consume(TK_PLUS)) {
     return primary();
@@ -155,6 +159,12 @@ Node* unary() {
   }
   if(consume(TK_DECREMENT)) {
     return new_node(ND_SUB, unary(), new_node_num(1));
+  }
+  if(consume(TK_STAR)) {
+    return new_node(ND_DEREF, unary(), NULL);
+  }
+  if(consume(TK_AMPERSAND)) {
+    return new_node(ND_ADDR, unary(), NULL);
   }
 
   return primary();

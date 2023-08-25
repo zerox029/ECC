@@ -21,6 +21,8 @@ typedef enum {
   ND_IF,     // if
   ND_WHILE,  // while
   ND_FOR,    // for
+  ND_ADDR,   // Address (&)
+  ND_DEREF,  // Dereferencing (*)
   ND_FN_CALL,// Function call
   ND_FN_DEC, // Function creation
   ND_LVAR,   // Local variable

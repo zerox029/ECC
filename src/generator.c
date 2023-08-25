@@ -176,6 +176,17 @@ void generate(Node* node) {
       printf("  push %d\n", node->val);
       return;
 
+    case ND_ADDR:
+      generate_local_variable(node->branches[0]);
+      return;
+
+    case ND_DEREF:
+      generate(node->branches[0]);
+      printf("  pop rax\n");
+      printf("  mov rax, [rax]\n");
+      printf("  push rax\n");
+      return;
+
     case ND_LVAR:
       generate_local_variable(node);
       printf("  pop rax\n");
