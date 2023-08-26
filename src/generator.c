@@ -15,7 +15,6 @@ const char* argumentRegisters[6] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 void generate_file_prologue() {
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
-  //printf("main:\n");
 }
 
 static void generate_function_prologue(size_t variable_count) {

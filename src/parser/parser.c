@@ -107,13 +107,13 @@ Node* func() {
       Token* parameter = consume(TK_LABEL);
       node->branches = vector_create();
 
-      vector_add(&node->branches, variable(&parameter));
+      vector_add(&node->branches, new_node_var(parameter));
     }
     while(consume(TK_COMMA)) { // Continue setting parameters as long as there are commas
       expect(TK_INT);
       Token* parameter = consume(TK_LABEL);
 
-      vector_add(&node->branches, variable(&parameter));
+      vector_add(&node->branches, new_node_var(parameter));
     }
 
     expect(TK_CL_PAR);
@@ -144,7 +144,7 @@ Node* assign() {
       return new_node(ND_ASSIGN, label, equality());
     }
     // Declaration only (No need to create a node, just add the variable to the symbol table)
-    return new_node(ND_VAR_DEC, variable(&tok), NULL);
+    return new_node(ND_VAR_DEC, new_node_var(tok), NULL);
   }
 
   if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
@@ -152,7 +152,7 @@ Node* assign() {
 
     // Verify that the variable was initialized beforehand
     if(!find_lvar(tok, current_function_name)) {
-      error("Use of undefined identifier");
+      error("Use of undefined identifier"); // TODO: print the name of the identifier
     }
 
     Node* label = new_node_var(tok);

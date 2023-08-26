@@ -49,6 +49,7 @@ extern char* current_function_name;
 
 Node* new_node(NodeKind, Node*, Node*);
 Node* new_node_num(int);
+Node* new_node_var(Token*);
 
 void program();
 Node* func();

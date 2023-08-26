@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include "../lib/vector.h"
+#include "parser.h"
 #include "primary.h"
 #include "symbolTable.h"
 
@@ -29,20 +30,20 @@ Node* parentheses() {
 Node* label_node() {
   Token* tok = consume(TK_LABEL);
   if (tok) {
-    return function(&tok) ?: variable(&tok);
+    return function(&tok) ?: new_node_var(tok);
   }
 }
 
-Node* function(Token** tok) {
+Node* function(Token* tok) {
   // Function calls
   if(is_next_token_of_type(TK_OP_PAR)) {
     Node* node = calloc(1, sizeof(Node));
 
     node->kind = ND_FN_CALL;
 
-    node->name = calloc(1, (*tok)->len + 1);
-    strncpy(node->name, (*tok)->str, (size_t)(*tok)->len);
-    node->name[(*tok)->len + 1] = '\0';
+    node->name = calloc(1, tok->len + 1);
+    strncpy(node->name, tok->str, (size_t)tok->len);
+    node->name[tok->len + 1] = '\0';
 
     // Parameters
     expect(TK_OP_PAR);
@@ -61,20 +62,4 @@ Node* function(Token** tok) {
   }
 
   return NULL;
-}
-
-Node* variable(Token** tok) {
-  Node* node = calloc(1, sizeof(Node));
-
-  node->kind = ND_LVAR;
-
-  LVar* lvar = find_lvar(*tok, current_function_name);
-  if (lvar) { // If variable was already declared, reuse its offset
-    node->offset = lvar->offset;
-  } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
-    lvar = add_symbol_to_table(*tok, current_function_name);
-    node->offset = lvar->offset;
-  }
-
-  return node;
 }

@@ -9,7 +9,6 @@
 
 Node* parentheses();
 Node* label_node();
-Node* function(Token** tok);
-Node* variable(Token** tok);
+Node* function(Token* tok);
 
 #endif //ECC_SRC_PARSER_PRIMARY_H_
