@@ -61,7 +61,7 @@ Node* new_node_num(int val) {
   return node;
 }
 
-Node* new_node_var(Token* tok) {
+Node* new_node_var(Token* tok, bool is_declaration) {
   Node* node = calloc(1, sizeof(Node));
 
   node->kind = ND_LVAR;
@@ -70,8 +70,12 @@ Node* new_node_var(Token* tok) {
   if (lvar) { // If variable was already declared, reuse its offset
     node->offset = lvar->offset;
   } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
-    lvar = add_symbol_to_table(tok, current_function_name);
-    node->offset = lvar->offset;
+    if(is_declaration) {
+      lvar = add_symbol_to_table(tok, current_function_name);
+      node->offset = lvar->offset;
+    } else {
+      error("Use of undefined identifier \"%s\"", tok->str);
+    }
   }
 
   return node;
@@ -105,13 +109,13 @@ Node* func() {
       Token* parameter = consume(TK_LABEL);
       node->branches = vector_create();
 
-      vector_add(&node->branches, new_node_var(parameter));
+      vector_add(&node->branches, new_node_var(parameter, true));
     }
     while(consume(TK_COMMA)) { // Continue setting parameters as long as there are commas
       expect(TK_INT);
       Token* parameter = consume(TK_LABEL);
 
-      vector_add(&node->branches, new_node_var(parameter));
+      vector_add(&node->branches, new_node_var(parameter, true));
     }
 
     expect(TK_CL_PAR);
@@ -135,25 +139,20 @@ Node* expr() {
 Node* assign() {
   if(consume(TK_INT)) {
     Token* tok = consume(TK_LABEL);
-    Node* label = new_node_var(tok);
+    Node* label = new_node_var(tok, true);
 
     // Declaration and assignment
     if(consume(TK_ASSIGN)) {
       return new_node(ND_ASSIGN, label, equality());
     }
     // Declaration only (No need to create a node, just add the variable to the symbol table)
-    return new_node(ND_VAR_DEC, new_node_var(tok), NULL);
+    return new_node(ND_VAR_DEC, new_node_var(tok, true), NULL);
   }
 
   if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
     Token* tok = consume(TK_LABEL);
 
-    // Verify that the variable was initialized beforehand
-    if(!find_lvar(tok, current_function_name)) {
-      error("Use of undefined identifier \"%s\"", tok->str);
-    }
-
-    Node* label = new_node_var(tok);
+    Node* label = new_node_var(tok, false);
 
     expect(TK_ASSIGN);
 
