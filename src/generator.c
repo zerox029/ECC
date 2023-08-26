@@ -235,6 +235,9 @@ void generate(Node* node) {
     case ND_RETURN:
       generate_return(node);
       return;
+
+    case ND_VAR_DEC:
+      return;
   }
 
   generate(node->branches[0]);

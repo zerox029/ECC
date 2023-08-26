@@ -27,7 +27,11 @@ typedef enum {
   ND_FN_DEC, // Function creation
   ND_LVAR,   // Local variable
   ND_NUM,    // Integer
-  ND_BLOCK   // Statement blocks ({ ... })
+  ND_BLOCK,   // Statement blocks ({ ... })
+
+  // Variable declaration with no assignment.
+  // Only needed so the parser doesn't accidentally generate an equality but doesn't actually generate any assembly
+  ND_VAR_DEC,
 } NodeKind;
 
 typedef struct Node Node;

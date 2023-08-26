@@ -75,6 +75,7 @@ variables() {
   assert 25 'int main() {int a=20; int b=5; return a+b;}'
   assert 10 'int main() {int foo=5; return foo+5;}'
   assert 25 'int main() {int foo=20; int bar=5; return foo+bar;}'
+  assert 5 'int main() {int foo; foo=5; return foo;}'
 
   printf "OK\n\n"
 }

@@ -13,7 +13,7 @@ stmt        = expr ";"
               | "for" "(" expr? ";" expr? ";" expr? ")" stmt
               | "return" expr ";"
 expr        = assign | equality
-assign      = ("int")? label "=" equality
+assign      = ("int")? label "=" equality | "int" label
 equality    = relational ("==" relational | "!=" relational)*
 relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
 add         = mul ("+" mul | "-" mul)*
@@ -133,15 +133,18 @@ Node* expr() {
   return assign() ?: equality();
 }
 
-// assign = "int" label "=" equality
+// assign = ("int")? label "=" equality | "int" label
 Node* assign() {
   if(consume(TK_INT)) {
     Token* tok = consume(TK_LABEL);
     Node* label = new_node_var(tok);
 
-    expect(TK_ASSIGN);
-
-    return new_node(ND_ASSIGN, label, equality());
+    // Declaration and assignment
+    if(consume(TK_ASSIGN)) {
+      return new_node(ND_ASSIGN, label, equality());
+    }
+    // Declaration only (No need to create a node, just add the variable to the symbol table)
+    return new_node(ND_VAR_DEC, variable(&tok), NULL);
   }
 
   if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
