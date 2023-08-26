@@ -94,9 +94,7 @@ Node* func() {
     Token* tok = consume(TK_LABEL);
 
     // Function name
-    node->name = calloc(1, tok->len + 1);
-    strncpy(node->name, tok->str, (size_t)tok->len);
-    node->name[tok->len + 1] = '\0';
+    node->name = tok->str;
     current_function_name = node->name;
 
     // Function parameters
@@ -152,7 +150,7 @@ Node* assign() {
 
     // Verify that the variable was initialized beforehand
     if(!find_lvar(tok, current_function_name)) {
-      error("Use of undefined identifier"); // TODO: print the name of the identifier
+      error("Use of undefined identifier \"%s\"", tok->str);
     }
 
     Node* label = new_node_var(tok);

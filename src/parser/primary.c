@@ -30,7 +30,7 @@ Node* parentheses() {
 Node* label_node() {
   Token* tok = consume(TK_LABEL);
   if (tok) {
-    return function(&tok) ?: new_node_var(tok);
+    return function(tok) ?: new_node_var(tok);
   }
 }
 
@@ -40,10 +40,7 @@ Node* function(Token* tok) {
     Node* node = calloc(1, sizeof(Node));
 
     node->kind = ND_FN_CALL;
-
-    node->name = calloc(1, tok->len + 1);
-    strncpy(node->name, tok->str, (size_t)tok->len);
-    node->name[tok->len + 1] = '\0';
+    node->name = tok->str;
 
     // Parameters
     expect(TK_OP_PAR);

@@ -97,8 +97,24 @@ bool at_eof() {
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
   Token* tok = calloc(1, sizeof(Token));
   tok->kind = kind;
-  tok->str = str;
   tok->len = len;
+  cur->next = tok;
+
+  char* name = calloc(1, len + 1);
+  strncpy(name, str, len);
+  name[len + 1] = '\0';
+  tok->str = name;
+
+  return tok;
+}
+
+// Essentially the same as new_token except it saves the entire program in str to make it possible to save its actual
+// name later once its length is determined
+static Token* new_token_label(TokenKind kind, Token* cur, char* str) {
+  Token* tok = calloc(1, sizeof(Token));
+  tok->kind = kind;
+  tok->len = 1;
+  tok->str = str;
   cur->next = tok;
 
   return tok;
@@ -159,12 +175,18 @@ Token* tokenize(char* p) {
 
     // Label
     if (isAlphanum(*p)) {
-      cur = new_token(TK_LABEL, cur, p++, 1);
+      cur = new_token_label(TK_LABEL, cur, p++);
 
       while (isAlphanum(*p)) {
         cur->len++;
         p++;
       }
+
+      // Setting the final name
+      char* name = calloc(1, cur->len + 1);
+      strncpy(name, cur->str, cur->len);
+      name[cur->len + 1] = '\0';
+      cur->str = name;
 
       continue;
     }
