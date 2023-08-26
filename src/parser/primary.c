@@ -35,7 +35,7 @@ Node* label_node() {
 
 Node* function(Token** tok) {
   // Function calls
-  if(isNextTokenOfType(TK_OP_PAR)) {
+  if(is_next_token_of_type(TK_OP_PAR)) {
     Node* node = calloc(1, sizeof(Node));
 
     node->kind = ND_FN_CALL;
@@ -47,7 +47,7 @@ Node* function(Token** tok) {
     // Parameters
     expect(TK_OP_PAR);
 
-    if(!isNextTokenOfType(TK_CL_PAR)) {
+    if(!is_next_token_of_type(TK_CL_PAR)) {
       node->branches = vector_create();
       vector_add(&node->branches, primary());
     }

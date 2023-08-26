@@ -47,6 +47,7 @@ Node* new_node(NodeKind, Node*, Node*);
 Node* new_node_num(int);
 
 void program();
+Node* func();
 Node* stmt();
 Node* expr();
 Node* assign();

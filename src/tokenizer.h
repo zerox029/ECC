@@ -32,6 +32,8 @@ typedef enum {
   TK_COMMA,     // ,
   TK_AMPERSAND, // &
 
+  TK_INT,       // int type
+
   TK_RETURN,    // return
   TK_IF,        // if
   TK_ELSE,      // else
@@ -43,6 +45,7 @@ typedef enum {
   TK_EOF,       // End of file
 } TokenKind;
 
+//TODO: Replace str with node->name
 struct Token {
   TokenKind kind;  // Type of the token
   int val;   // Numerical value
@@ -54,7 +57,8 @@ struct Token {
 
 extern Token* token;
 
-bool isNextTokenOfType(TokenKind);
+bool is_next_token_of_type(TokenKind);
+bool is_nth_token_of_type(TokenKind, int);
 Token* consume(TokenKind);
 void expect(TokenKind);
 int expect_number();

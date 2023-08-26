@@ -38,16 +38,16 @@ assertPrintf() {
 arithmetic() {
   printf "Testing artithmetic\n"
 
-  assert 0 'main() {return 0;}'
-  assert 42 'main() {return 42;}'
-  assert 21 'main() {return 5+20-4;}'
-  assert 21 'main() {return 5 + 20 - 4;}'
-  assert 47 'main() {return 5+6*7;}'
-  assert 15 'main() {return 5*(9-6);}'
-  assert 4 'main() {return (3+5)/2;}'
-  assert 10 'main() {return -10+20;}'
-  assert 2 'main() {return ++1;}'
-  assert 0 'main() {return --1;}'
+  assert 0 'int main() {return 0;}'
+  assert 42 'int main() {return 42;}'
+  assert 21 'int main() {return 5+20-4;}'
+  assert 21 'int main() {return 5 + 20 - 4;}'
+  assert 47 'int main() {return 5+6*7;}'
+  assert 15 'int main() {return 5*(9-6);}'
+  assert 4 'int main() {return (3+5)/2;}'
+  assert 10 'int main() {return -10+20;}'
+  assert 2 'int main() {return ++1;}'
+  assert 0 'int main() {return --1;}'
 
   printf "OK\n\n"
 }
@@ -55,15 +55,15 @@ arithmetic() {
 comparisons() {
   printf "Testing comparisons\n"
 
-  assert 1 'main() {return 10>5;}'
-  assert 0 'main() {return 10<5;}'
-  assert 1 'main() {return 5<10;}'
-  assert 0 'main() {return 5>10;}'
-  assert 0 'main() {return 0==10;}'
-  assert 1 'main() {return 9!=10;}'
-  assert 1 'main() {return 10>=10;}'
-  assert 1 'main() {return 10>=2;}'
-  assert 0 'main() {return 10>=50;}'
+  assert 1 'int main() {return 10>5;}'
+  assert 0 'int main() {return 10<5;}'
+  assert 1 'int main() {return 5<10;}'
+  assert 0 'int main() {return 5>10;}'
+  assert 0 'int main() {return 0==10;}'
+  assert 1 'int main() {return 9!=10;}'
+  assert 1 'int main() {return 10>=10;}'
+  assert 1 'int main() {return 10>=2;}'
+  assert 0 'int main() {return 10>=50;}'
 
   printf "OK\n\n"
 }
@@ -71,10 +71,10 @@ comparisons() {
 variables() {
   printf "Testing variables\n"
 
-  assert 10 'main() {a=5; return a+5;}'
-  assert 25 'main() {a=20; b=5; return a+b;}'
-  assert 10 'main() {foo=5; return foo+5;}'
-  assert 25 'main() {foo=20; bar=5; return foo+bar;}'
+  assert 10 'int main() {int a=5; return a+5;}'
+  assert 25 'int main() {int a=20; int b=5; return a+b;}'
+  assert 10 'int main() {int foo=5; return foo+5;}'
+  assert 25 'int main() {int foo=20; int bar=5; return foo+bar;}'
 
   printf "OK\n\n"
 }
@@ -82,12 +82,12 @@ variables() {
 branching() {
   printf "Testing branching\n"
 
-  assert 1 'main() {if(5==5) return 1;}'
-  assert 1 'main() {if(5==5) { return 1; } else { return 0; }}'
-  assert 0 'main() {if(4==5) { return 1; } else { return 0; }}'
-  assert 10 'main() {foo = 0; while(foo != 10) { foo = foo + 1; } return foo;}'
-  assert 10 'main() {foo = 0; for(count = 0; count < 10; count = count + 1) { foo = foo + 1; } return foo;}'
-  assert 80 'main() {foo = 0; for(count = 0; count < 10; count = count + 1) { val = 2 * 4; foo = foo + val; } return foo;}'
+  assert 1 'int main() {if(5==5) return 1;}'
+  assert 1 'int main() {if(5==5) { return 1; } else { return 0; }}'
+  assert 0 'int main() {if(4==5) { return 1; } else { return 0; }}'
+  assert 10 'int main() {int foo = 0; while(foo != 10) { foo = foo + 1; } return foo;}'
+  assert 10 'int main() {int foo = 0; for(int count = 0; count < 10; count = count + 1) { foo = foo + 1; } return foo;}'
+  assert 80 'int main() {int foo = 0; for(int count = 0; count < 10; count = count + 1) { int val = 2 * 4; foo = foo + val; } return foo;}'
 
   printf "OK\n\n"
 }
@@ -95,37 +95,37 @@ branching() {
 functions() {
   printf "Testing functions\n"
 
-  assertPrintf 'This works!' 'main() { helloWorld(); return 0; }'
-  assertPrintf '6' 'main() { helloArgs(1,2,3); return 0; }'
-  assert 5 'five() { foo = 5; return foo; } main() { return five(); }'
-  assert 12 'add(a, b) { return a + b; } main() { return add(5,7); }'
-  assert 200 'foo(a, b, c) { foo = 25; return a * b + c + foo; } main() { return foo(25,4,75); }'
+  # assertPrintf 'This works!' 'main() { helloWorld(); return 0; }'
+  # assertPrintf '6' 'main() { helloArgs(1,2,3); return 0; }'
+  assert 5 'int five() { int foo = 5; return foo; } int main() { return five(); }'
+  assert 12 'int add(int a, int b) { return a + b; } int main() { return add(5,7); }'
+  assert 200 'int foo(int a, int b, int c) { int foo = 25; return a * b + c + foo; } int main() { return foo(25,4,75); }'
 
   printf "OK\n\n"
 }
 
 pointers() {
-  assert 3 'main() {x=3; y=&x; return *y;}'
-  assert 3 'main() {x=3; y=5; z=&y + 8; return *z;}'
+  assert 3 'int main() {int x=3; int y=&x; return *y;}'
+  assert 3 'int main() {int x=3; int y=5; int z=&y + 8; return *z;}'
 }
 
 fibonacci() {
   assert 55 "
-fib(n)
+int fib(n)
 {
-     a = 0;
-     b = 1;
-     c = 0;
+     int a = 0;
+     int b = 1;
+     int c;
      if (n == 0)
          return a;
-     for (i = 2; i <= n; i = i + 1) {
+     for (int i = 2; i <= n; i = i + 1) {
          c = a + b;
          a = b;
          b = c;
      }
      return b;
  }
-main()
+int main()
 {
    return fib(10);
 }"

@@ -3,16 +3,17 @@
 //
 
 /* Current production rules:
+ * TODO: Update the parser to reflect the changes
 program     = (func | stmt)*
-func        = int label "(" ((primary, ",")* primary)? ")" "{" stmt* "}"
+func        = int label "(" (("int" label, ",")* "int" label)? ")" "{" stmt* "}"
 stmt        = expr ";"
               | "{" stmt; "}"
               | "if" "(" equality ")" stmt ("else" stmt)?
               | "while" "(" equality ")" stmt
-              | "for" "(" assign? ";" equality? ";" equality? ")" stmt
+              | "for" "(" expr? ";" expr? ";" expr? ")" stmt
               | "return" expr ";"
 expr        = assign | equality
-assign      = "int" label "=" equality
+assign      = ("int")? label "=" equality
 equality    = relational ("==" relational | "!=" relational)*
 relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
 add         = mul ("+" mul | "-" mul)*
@@ -27,7 +28,11 @@ primary     = num
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
+#include "primary.h"
+#include "symbolTable.h"
+#include "../utils.h"
 #include "../lib/vector.h"
 
 Node** code;
@@ -39,8 +44,6 @@ char* current_function_name = "GLOBAL";
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
-
-  int a,b,c;
 
   node->branches = vector_create();
   vector_add(&node->branches, lhs);
@@ -58,28 +61,105 @@ Node* new_node_num(int val) {
   return node;
 }
 
-// program = stmt*
-void program() {
-  code = vector_create();
-  while (!at_eof()) {
-    vector_add(&code, stmt());
-  }
-}
+Node* new_node_var(Token* tok) {
+  Node* node = calloc(1, sizeof(Node));
 
-// expr = assign
-Node* expr() {
-  return assign();
-}
+  node->kind = ND_LVAR;
 
-// assign = equality ("=" assign)?
-Node* assign() {
-  Node* node = equality();
-
-  if (consume(TK_ASSIGN)) {
-    node = new_node(ND_ASSIGN, node, assign());
+  LVar* lvar = find_lvar(tok, current_function_name);
+  if (lvar) { // If variable was already declared, reuse its offset
+    node->offset = lvar->offset;
+  } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
+    lvar = add_symbol_to_table(tok, current_function_name);
+    node->offset = lvar->offset;
   }
 
   return node;
+}
+
+// program = (func | stmt)*
+void program() {
+  code = vector_create();
+  while (!at_eof()) {
+    vector_add(&code, func() ?: stmt());
+  }
+}
+
+// func = int label "(" (("int" label, ",")* "int" label)? ")" "{" stmt* "}"
+Node* func() {
+  if(consume(TK_INT)) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = ND_FN_DEC;
+
+    Token* tok = consume(TK_LABEL);
+
+    // Function name
+    node->name = calloc(1, tok->len + 1);
+    strncpy(node->name, tok->str, (size_t)tok->len);
+    node->name[tok->len + 1] = '\0';
+    current_function_name = node->name;
+
+    // Function parameters
+    expect(TK_OP_PAR);
+
+    if(!is_next_token_of_type(TK_CL_PAR)) { // First parameter
+      expect(TK_INT);
+      Token* parameter = consume(TK_LABEL);
+      node->branches = vector_create();
+
+      vector_add(&node->branches, variable(&parameter));
+    }
+    while(consume(TK_COMMA)) { // Continue setting parameters as long as there are commas
+      expect(TK_INT);
+      Token* parameter = consume(TK_LABEL);
+
+      vector_add(&node->branches, variable(&parameter));
+    }
+
+    expect(TK_CL_PAR);
+
+    // Function body
+    if(node->branches == NULL) { // Creating the branches vector if no parameters are defined
+      node->branches = vector_create();
+    }
+    vector_add(&node->branches, stmt());
+
+    return node;
+  }
+}
+
+// expr = assign | equality
+Node* expr() {
+  return assign() ?: equality();
+}
+
+// assign = "int" label "=" equality
+Node* assign() {
+  if(consume(TK_INT)) {
+    Token* tok = consume(TK_LABEL);
+    Node* label = new_node_var(tok);
+
+    expect(TK_ASSIGN);
+
+    return new_node(ND_ASSIGN, label, equality());
+  }
+
+  if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
+    Token* tok = consume(TK_LABEL);
+
+    // Verify that the variable was initialized beforehand
+    if(!find_lvar(tok, current_function_name)) {
+      error("Use of undefined identifier");
+    }
+
+    Node* label = new_node_var(tok);
+
+    expect(TK_ASSIGN);
+
+    return new_node(ND_ASSIGN, label, equality());
+  }
+
+  return NULL;
 }
 
 // equality = relational ("==" relational | "!=" relational)*

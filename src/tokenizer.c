@@ -30,12 +30,23 @@ struct Symbol symbols[] = {
 
 struct Symbol keywords[] = {
     {"return", TK_RETURN}, {"if", TK_IF}, {"else", TK_ELSE},
-    {"while", TK_WHILE}, {"for", TK_FOR}
+    {"while", TK_WHILE}, {"for", TK_FOR}, {"int", TK_INT}
 };
 
 // Checks if the next token is of the specified kind
-bool isNextTokenOfType(TokenKind token_kind) {
+bool is_next_token_of_type(TokenKind token_kind) {
   return token->kind == token_kind;
+}
+
+// Checks if the specified token is of the specified kind
+bool is_nth_token_of_type(TokenKind token_kind, int n) {
+  Token* tok = token;
+
+  for(int i = 0; i < n; i++) {
+    tok = token->next;
+  }
+
+  return tok->kind == token_kind;
 }
 
 // Returns the current token if it is of the specified kind and then moves to the next one, returns null otherwise

@@ -7,29 +7,49 @@
 #include "symbolTable.h"
 #include "../lib/vector.h"
 
-// stmt = expr ";"
-//        | label ("(" ((primary ",")* primary)? ")")? "{" stmt* "}"
-//        | "{" stmt* "}"
-//        | "if" "(" expr ")" stmt ("else" stmt)?
-//        | "while" "(" expr ")" stmt
-//        | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+// stmt = "{" stmt; "}"
 //        | "return" expr ";"
+//        | "if" "(" equality ")" stmt ("else" stmt)?
+//        | "while" "(" equality ")" stmt
+//        | "for" "(" assign? ";" equality? ";" equality? ")" stmt
+//        | expr ";"
 Node* stmt() {
-  return return_statement()
+  return code_block()
+    ?: return_statement()
     ?: if_else_statement()
     ?: while_loop()
     ?: for_loop()
-    ?: code_block()
     ?: singular_expression();
 }
 
+// "{" stmt; "}"
+Node* code_block() {
+  if(consume(TK_OP_BLK)) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+    node->branches = vector_create();
+
+    while(!is_next_token_of_type(TK_CL_BLK)) {
+      vector_add(&node->branches, stmt());
+    }
+
+    expect(TK_CL_BLK);
+
+    return node;
+  }
+
+  return NULL;
+}
+
+// "return" expr ";"
 Node* return_statement() {
   if(consume(TK_RETURN)) {
     Node* node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
     node->branches = vector_create();
 
-    node->kind = ND_RETURN;
     vector_add(&node->branches, expr());
+
     expect(TK_SMCOLON);
 
     return node;
@@ -38,17 +58,16 @@ Node* return_statement() {
   return NULL;
 }
 
+// "if" "(" equality ")" stmt ("else" stmt)?
 Node* if_else_statement() {
   if(consume(TK_IF)) {
     Node* node = calloc(1, sizeof(Node));
-    node->branches = vector_create();
-
     node->kind = ND_IF;
     node->branches = vector_create();
 
     // Condition
     expect(TK_OP_PAR);
-    vector_add(&node->branches, expr());
+    vector_add(&node->branches, equality());
     expect(TK_CL_PAR);
 
     // Consequent
@@ -65,16 +84,16 @@ Node* if_else_statement() {
   return NULL;
 }
 
+// "while" "(" equality ")" stmt
 Node* while_loop() {
   if(consume(TK_WHILE)) {
     Node* node = calloc(1, sizeof(Node));
-    node->branches = vector_create();
-
     node->kind = ND_WHILE;
+    node->branches = vector_create();
 
     // Condition
     expect(TK_OP_PAR);
-    vector_add(&node->branches, expr());
+    vector_add(&node->branches, equality());
     expect(TK_CL_PAR);
 
     // Consequent
@@ -86,26 +105,29 @@ Node* while_loop() {
   return NULL;
 }
 
+// "for" "(" assign? ";" equality? ";" equality? ")" stmt
 Node* for_loop() {
   if(consume(TK_FOR)) {
     Node* node = calloc(1, sizeof(Node));
-    node->branches = vector_create();
-
     node->kind = ND_FOR;
+    node->branches = vector_create();
 
     expect(TK_OP_PAR);
 
-    if(!isNextTokenOfType(TK_SMCOLON)) {
+    // Assignment
+    if(!is_next_token_of_type(TK_SMCOLON)) {
       vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
-    if(!isNextTokenOfType(TK_SMCOLON)) {
+    // Condition
+    if(!is_next_token_of_type(TK_SMCOLON)) {
       vector_add(&node->branches, expr());
     }
     expect(TK_SMCOLON);
 
-    if(!isNextTokenOfType(TK_OP_PAR)) {
+    // Increment/Decrement
+    if(!is_next_token_of_type(TK_OP_PAR)) {
       vector_add(&node->branches, expr());
     }
 
@@ -119,53 +141,10 @@ Node* for_loop() {
   return NULL;
 }
 
-Node* code_block() {
-  if(consume(TK_OP_BLK)) {
-    Node* node = calloc(1, sizeof(Node));
-    node->branches = vector_create();
-
-    node->kind = ND_BLOCK;
-
-    while(!isNextTokenOfType(TK_CL_BLK)) {
-      vector_add(&node->branches, stmt());
-    }
-
-    expect(TK_CL_BLK);
-
-    return node;
-  }
-
-  return NULL;
-}
-
 Node* singular_expression() {
-  Node* node = calloc(1, sizeof(Node));
-  node->branches = vector_create();
+  Node* node = expr();
 
-  node = expr();
-
-  // Function declaration
-  if(isNextTokenOfType(TK_OP_BLK)) {
-    node->kind = ND_FN_DEC;
-
-    current_function_name = node->name;
-
-    // Set the function name for the function parameters
-    if(node->branches) {
-      set_function_name_for_last_n_variables(node->name, vector_size(node->branches));
-    }
-
-    // Zero parameters defined
-    if(node->branches == NULL) {
-      node->branches = vector_create();
-    }
-
-    // Function body
-    Node* body = stmt();
-    vector_add(&node->branches, body);
-  } else {
-    expect(TK_SMCOLON);
-  }
+  expect(TK_SMCOLON);
 
   return node;
 }
