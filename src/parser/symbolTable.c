@@ -43,15 +43,6 @@ LVar* add_symbol_to_table(Token* tok, char* function_name) {
   return lvar;
 }
 
-size_t get_table_size() {
-  size_t size = 0;
-  for (LVar* var = symbol_table; var; var = var->next) {
-    size++;
-  }
-
-  return size;
-}
-
 size_t get_function_table_size(char* function_name) {
   size_t size = 0;
   for (LVar* var = symbol_table; var; var = var->next) {
@@ -62,12 +53,4 @@ size_t get_function_table_size(char* function_name) {
   }
 
   return size;
-}
-
-void set_function_name_for_last_n_variables(char* function_name, int variable_count) {
-  LVar* current = symbol_table;
-  for(int i = 0; i < variable_count; i++) {
-    current->function_name = function_name;
-    current = symbol_table->next;
-  }
 }
