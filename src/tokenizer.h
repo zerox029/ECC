@@ -45,11 +45,10 @@ typedef enum {
   TK_EOF,       // End of file
 } TokenKind;
 
-//TODO: Replace str with node->name
 struct Token {
   TokenKind kind;  // Type of the token
   int val;   // Numerical value
-  char* str; // Text value (contains the rest of the program also)
+  char* str; // Text value
   int len;   // Length of the token
 
   Token* next; // Pointer to the next token in the list
