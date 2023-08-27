@@ -30,7 +30,7 @@ Node* parentheses() {
 Node* label_node() {
   Token* tok = consume(TK_LABEL);
   if (tok) {
-    return function(tok) ?: new_node_var(tok, false);
+    return function(tok) ?: new_node_var(tok, false, 0);
   }
 }
 

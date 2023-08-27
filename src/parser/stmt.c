@@ -41,14 +41,14 @@ Node* code_block() {
   return NULL;
 }
 
-// "return" expr ";"
+// "return" equality ";"
 Node* return_statement() {
   if(consume(TK_RETURN)) {
     Node* node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->branches = vector_create();
 
-    vector_add(&node->branches, expr());
+    vector_add(&node->branches, equality());
 
     expect(TK_SMCOLON);
 

@@ -106,8 +106,13 @@ functions() {
 }
 
 pointers() {
+  printf "Testing pointers\n"
+
   assert 3 'int main() {int x=3; int y=&x; return *y;}'
   assert 3 'int main() {int x=3; int y=5; int z=&y + 8; return *z;}'
+  assert 3 'int main() {int x; int *y; y=&x; *y=3; return x;}'
+
+  printf "OK\n\n"
 }
 
 fibonacci() {

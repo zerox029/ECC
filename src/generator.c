@@ -37,6 +37,11 @@ static void generate_division() {
 }
 
 static void generate_local_variable(Node* node) {
+  if(node->kind == ND_DEREF) {
+    generate(node->branches[0]);
+    return;
+  }
+
   if (node->kind != ND_LVAR) {
     error("The left-hand side value was not a variable.");
   }

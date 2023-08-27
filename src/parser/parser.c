@@ -3,7 +3,6 @@
 //
 
 /* Current production rules:
- * TODO: Update the parser to reflect the changes
 program     = (func | stmt)*
 func        = int label "(" (("int" label, ",")* "int" label)? ")" "{" stmt* "}"
 stmt        = expr ";"
@@ -11,17 +10,14 @@ stmt        = expr ";"
               | "if" "(" equality ")" stmt ("else" stmt)?
               | "while" "(" equality ")" stmt
               | "for" "(" expr? ";" expr? ";" expr? ")" stmt
-              | "return" expr ";"
+              | "return" equality ";"
 expr        = assign | equality
-assign      = ("int")? label "=" equality | "int" label
+assign      = ("int" "*"*)? label ("=" equality)?
 equality    = relational ("==" relational | "!=" relational)*
 relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
 add         = mul ("+" mul | "-" mul)*
 mul         = unary ("*" unary | "/" unary)*
-unary       =  ("+" | "-")? primary
-               | ("++" | "--")? unary
-               | "*" unary
-               | "&" unary
+unary       =  ("+" | "-" | "++" | "--" | "*" | "&")? primary
 primary     = num
               | label ("(" ((primary ",")* primary)? ")")?
               | "(" expr ")"
@@ -61,7 +57,7 @@ Node* new_node_num(int val) {
   return node;
 }
 
-Node* new_node_var(Token* tok, bool is_declaration) {
+Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth) {
   Node* node = calloc(1, sizeof(Node));
 
   node->kind = ND_LVAR;
@@ -71,11 +67,20 @@ Node* new_node_var(Token* tok, bool is_declaration) {
     node->offset = lvar->offset;
   } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
     if(is_declaration) {
-      lvar = add_symbol_to_table(tok, current_function_name);
+      lvar = add_symbol_to_table(tok, current_function_name, pointer_depth);
       node->offset = lvar->offset;
     } else {
       error("Use of undefined identifier \"%s\"", tok->str);
     }
+  }
+
+  // Handling pointer values
+  for(int i = 0; i < pointer_depth; i++) {
+    Node* pointer_node = calloc(1, sizeof(Node));
+    pointer_node->kind = ND_DEREF;
+    pointer_node->branches = vector_create();
+    vector_add(&pointer_node->branches, node);
+    node = pointer_node;
   }
 
   return node;
@@ -109,13 +114,13 @@ Node* func() {
       Token* parameter = consume(TK_LABEL);
       node->branches = vector_create();
 
-      vector_add(&node->branches, new_node_var(parameter, true));
+      vector_add(&node->branches, new_node_var(parameter, true, 0));
     }
     while(consume(TK_COMMA)) { // Continue setting parameters as long as there are commas
       expect(TK_INT);
       Token* parameter = consume(TK_LABEL);
 
-      vector_add(&node->branches, new_node_var(parameter, true));
+      vector_add(&node->branches, new_node_var(parameter, true, 0));
     }
 
     expect(TK_CL_PAR);
@@ -135,24 +140,34 @@ Node* expr() {
   return assign() ?: equality();
 }
 
-// assign = ("int")? label "=" equality | "int" label
+// assign = ("int" "*"*)? label ("=" equality)?
 Node* assign() {
+  int pointer_depth = 0;
+  // Declaration
   if(consume(TK_INT)) {
+    while(consume(TK_STAR)) {
+      pointer_depth++;
+    }
+
     Token* tok = consume(TK_LABEL);
-    Node* label = new_node_var(tok, true);
+    Node* label = new_node_var(tok, true, pointer_depth);
 
     // Declaration and assignment
     if(consume(TK_ASSIGN)) {
       return new_node(ND_ASSIGN, label, equality());
     }
     // Declaration only (No need to create a node, just add the variable to the symbol table)
-    return new_node(ND_VAR_DEC, new_node_var(tok, true), NULL);
+    return new_node(ND_VAR_DEC, new_node_var(tok, true, pointer_depth), NULL);
   }
 
+  // No declaration
+  while(consume(TK_STAR)) {
+    pointer_depth++;
+  }
   if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
     Token* tok = consume(TK_LABEL);
 
-    Node* label = new_node_var(tok, false);
+    Node* label = new_node_var(tok, false, pointer_depth);
 
     expect(TK_ASSIGN);
 
@@ -226,10 +241,8 @@ Node* mul() {
   }
 }
 
-// unary = ("+" | "-")? primary
-//         | ("++" | "--")? unary
+// unary = ("+" | "-" | "++" | "--" | "&")? primary
 //         | "*" unary
-//         | "&" unary
 Node* unary() {
   if (consume(TK_PLUS)) {
     return primary();
@@ -238,16 +251,16 @@ Node* unary() {
     return new_node(ND_SUB, new_node_num(0), primary());
   }
   if(consume(TK_INCREMENT)) {
-    return new_node(ND_ADD, new_node_num(1), unary());
+    return new_node(ND_ADD, new_node_num(1), primary());
   }
   if(consume(TK_DECREMENT)) {
-    return new_node(ND_SUB, unary(), new_node_num(1));
+    return new_node(ND_SUB, primary(), new_node_num(1));
   }
   if(consume(TK_STAR)) {
     return new_node(ND_DEREF, unary(), NULL);
   }
   if(consume(TK_AMPERSAND)) {
-    return new_node(ND_ADDR, unary(), NULL);
+    return new_node(ND_ADDR, primary(), NULL);
   }
 
   return primary();

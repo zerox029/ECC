@@ -25,18 +25,30 @@ LVar* find_lvar(Token* tok, char* function_name) {
 }
 
 // Creates a new Lvar and adds it to the symbol table. It then returns the created LVar
-LVar* add_symbol_to_table(Token* tok, char* function_name) {
+LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth) {
   LVar* lvar = calloc(1, sizeof(LVar));
   lvar->next = symbol_table;
   lvar->name = tok->str;
   lvar->function_name = function_name;
   lvar->len = tok->len;
 
+  // Setting offset
   if (symbol_table && symbol_table->function_name == function_name) {
     lvar->offset = symbol_table->offset + 8;
   } else {
     lvar->offset = 8;
   }
+
+  // Setting type
+  Type* type = calloc(1, sizeof(Type));
+  type->ty = INT;
+  for(int i = 0; i < pointer_depth; i++) {
+    Type* pointer_type = calloc(1, sizeof(Type));
+    pointer_type->ty = PTR;
+    pointer_type->ptr_to = type;
+    type = pointer_type;
+  }
+  lvar->ty = type;
 
   symbol_table = lvar;
 
