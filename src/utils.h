@@ -5,11 +5,11 @@
 #ifndef ECC_SRC_UTILS_H_
 #define ECC_SRC_UTILS_H_
 
-void error_at(char*, char*, char*, ...);
-void error(char*, ...);
+void error_at(char* loc, char* input, char* fmt, ...);
+void error(char* fmt, ...);
 
-bool startsWith(char*, char*);
-bool isAlphanum(char);
+bool startsWith(char* p, char* q);
+bool isAlphanum(char p);
 
 char* generateRandomLabel();
 

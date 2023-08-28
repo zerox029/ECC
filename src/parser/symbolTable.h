@@ -25,8 +25,8 @@ struct LVar {
   int offset;
 };
 
-LVar* find_lvar(Token*, char*);
-LVar* add_symbol_to_table(Token*, char*, int);
-size_t get_function_table_size(char*);
+LVar* find_lvar(Token* tok, char* function_name);
+LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth);
+size_t get_function_table_size(char* function_name);
 
 #endif //ECC_SRC_PARSER_SYMBOLTABLE_H_

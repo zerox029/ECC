@@ -47,9 +47,9 @@ struct Node {
 extern Node** code;
 extern char* current_function_name;
 
-Node* new_node(NodeKind, Node*, Node*);
-Node* new_node_num(int);
-Node* new_node_var(Token*, bool, int);
+Node* new_node(NodeKind kind, Node* rhs, Node* lhs);
+Node* new_node_num(int val);
+Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth);
 
 void program();
 Node* func();

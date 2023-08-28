@@ -56,12 +56,12 @@ struct Token {
 
 extern Token* token;
 
-bool is_next_token_of_type(TokenKind);
-bool is_nth_token_of_type(TokenKind, int);
-Token* consume(TokenKind);
-void expect(TokenKind);
+bool is_next_token_of_type(TokenKind token_kind);
+bool is_nth_token_of_type(TokenKind token_kind, int n);
+Token* consume(TokenKind token_kind);
+void expect(TokenKind token_kind);
 int expect_number();
 bool at_eof();
-Token* tokenize(char*);
+Token* tokenize(char* program);
 
 #endif //ECC_TOKENIZER_H

@@ -38,7 +38,7 @@ bool is_next_token_of_type(TokenKind token_kind) {
   return token->kind == token_kind;
 }
 
-// Checks if the specified token is of the specified kind
+// Checks if the nth token in the list is of the specified kind
 bool is_nth_token_of_type(TokenKind token_kind, int n) {
   Token* tok = token;
 
@@ -121,14 +121,14 @@ static Token* new_token_label(TokenKind kind, Token* cur, char* str) {
 }
 
 // Creates a linked list from a string of characters
-Token* tokenize(char* p) {
+Token* tokenize(char* program) {
   Token head;
   head.next = NULL;
   Token* cur = &head;
 
-  while (*p) {
-    if (isspace(*p)) {
-      p++;
+  while (*program) {
+    if (isspace(*program)) {
+      program++;
 
       continue;
     }
@@ -137,13 +137,13 @@ Token* tokenize(char* p) {
     for(int i = 0; symbols[i].name; i++) {
       char* name = symbols[i].name;
 
-      if(!startsWith(p, symbols[i].name)) {
+      if(!startsWith(program, symbols[i].name)) {
         continue;
       }
 
       int len = strlen(name);
-      cur = new_token(symbols[i].kind, cur, p, len);
-      p += len;
+      cur = new_token(symbols[i].kind, cur, program, len);
+      program += len;
 
       goto cnt;
     }
@@ -152,34 +152,34 @@ Token* tokenize(char* p) {
     for(int i = 0; keywords[i].name; i++) {
       char* name = keywords[i].name;
 
-      if(!startsWith(p, keywords[i].name)) {
+      if(!startsWith(program, keywords[i].name)) {
         continue;
       }
 
       int len = strlen(name);
-      cur = new_token(keywords[i].kind, cur, p, len);
-      p += len;
+      cur = new_token(keywords[i].kind, cur, program, len);
+      program += len;
 
       goto cnt;
     }
 
     // Digit
-    if (isdigit(*p)) {
-      cur = new_token(TK_NUM, cur, p, 0);
-      char* q = p;
-      cur->val = strtol(p, &p, 10);
-      cur->len = p - q;
+    if (isdigit(*program)) {
+      cur = new_token(TK_NUM, cur, program, 0);
+      char* q = program;
+      cur->val = strtol(program, &program, 10);
+      cur->len = program - q;
 
       continue;
     }
 
     // Label
-    if (isAlphanum(*p)) {
-      cur = new_token_label(TK_LABEL, cur, p++);
+    if (isAlphanum(*program)) {
+      cur = new_token_label(TK_LABEL, cur, program++);
 
-      while (isAlphanum(*p)) {
+      while (isAlphanum(*program)) {
         cur->len++;
-        p++;
+        program++;
       }
 
       // Setting the final name
@@ -196,7 +196,7 @@ Token* tokenize(char* p) {
     cnt:;
   }
 
-  new_token(TK_EOF, cur, p, 0);
+  new_token(TK_EOF, cur, program, 0);
 
   return head.next;
 }

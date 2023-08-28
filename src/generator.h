@@ -10,6 +10,6 @@
 extern char* user_input;
 
 void generate_file_prologue();
-void generate(Node*);
+void generate(Node* node);
 
 #endif //ECC_GENERATOR_H
