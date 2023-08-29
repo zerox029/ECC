@@ -65,10 +65,12 @@ Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth) {
   LVar* lvar = find_lvar(tok, current_function_name);
   if (lvar) { // If variable was already declared, reuse its offset
     node->offset = lvar->offset;
+    node->variable_name = lvar->name;
   } else { // If it's a new variable, create it set its offset 8 bytes after the last variable
     if(is_declaration) {
       lvar = add_symbol_to_table(tok, current_function_name, pointer_depth);
       node->offset = lvar->offset;
+      node->variable_name = lvar->name;
     } else {
       error("Use of undefined identifier \"%s\"", tok->str);
     }
@@ -211,6 +213,39 @@ Node* relational() {
   }
 }
 
+static bool is_pointer(Node* node) {
+  if(node->kind == ND_ADDR) {
+    return true;
+  }/*
+  else if(node->kind == ND_LVAR) {
+    LVar* variable = find_lvar(node->variable_name, current_function_name);
+
+    return variable->ty->data_type == PTR;
+  }*/
+
+  return false;
+}
+
+// If pointer arithmetic, multiply the result by the size of the datatype pointed to by the pointer
+static Node* handle_pointer_arithmetic(Node* node) {
+  if(node->kind == ND_ADD || node->kind == ND_SUB) {
+    if(is_pointer(node->branches[0])) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(4), node->branches[1]);
+      node->branches[1] = mul_node;
+
+      return node;
+    }
+    else if(is_pointer(node->branches[1])) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(4), node->branches[0]);
+      node->branches[0] = mul_node;
+
+      return node;
+    }
+  }
+
+  return node;
+}
+
 // add = mul ("+" mul | "-" mul)*
 Node* add() {
   Node* node = mul();
@@ -221,7 +256,7 @@ Node* add() {
     } else if (consume(TK_MINUS)) {
       node = new_node(ND_SUB, node, mul());
     } else {
-      return node;
+      return handle_pointer_arithmetic(node);
     }
   }
 }

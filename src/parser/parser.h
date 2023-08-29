@@ -41,6 +41,7 @@ struct Node {
   Node** branches; // Vector containing all branches
   int val; // Numerical value for variables
   int offset; // Relative position within the stack frame for variables
+  char* variable_name;
   char* name; // Function name
 };
 
