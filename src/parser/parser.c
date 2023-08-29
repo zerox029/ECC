@@ -19,7 +19,7 @@ add         = mul ("+" mul | "-" mul)*
 mul         = unary ("*" unary | "/" unary)*
 unary       =  ("+" | "-" | "++" | "--" | "*" | "&")? primary
 primary     = num
-              | label ("(" ((primary ",")* primary)? ")")?
+              | label ("(" ((equality ",")* equality)? ")")?
               | "(" expr ")"
 */
 
@@ -62,7 +62,7 @@ Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth) {
 
   node->kind = ND_LVAR;
 
-  LVar* lvar = find_lvar(tok, current_function_name);
+  LVar* lvar = find_lvar(tok->str, current_function_name);
   if (lvar) { // If variable was already declared, reuse its offset
     node->offset = lvar->offset;
     node->variable_name = lvar->name;
@@ -213,15 +213,23 @@ Node* relational() {
   }
 }
 
-static bool is_pointer(Node* node) {
+// Returns how large of a data a pointer points to, that value must then be substituted for the operand when doing
+// pointer arithmetic. A value of 1 reprensents no pointer.
+static int get_pointer_jump_size(Node* node) {
   if(node->kind == ND_ADDR) {
-    return true;
-  }/*
+    // TODO: Handle this case
+    return 1;
+  }
   else if(node->kind == ND_LVAR) {
     LVar* variable = find_lvar(node->variable_name, current_function_name);
 
-    return variable->ty->data_type == PTR;
-  }*/
+    if(variable->ty->data_type != PTR)
+    {
+      return 1;
+    }
+
+    return (int) variable->ty->ptr_to->data_type;
+  }
 
   return false;
 }
@@ -229,14 +237,17 @@ static bool is_pointer(Node* node) {
 // If pointer arithmetic, multiply the result by the size of the datatype pointed to by the pointer
 static Node* handle_pointer_arithmetic(Node* node) {
   if(node->kind == ND_ADD || node->kind == ND_SUB) {
-    if(is_pointer(node->branches[0])) {
-      Node* mul_node = new_node(ND_MUL, new_node_num(4), node->branches[1]);
+    int left_operand_jump_size = get_pointer_jump_size(node->branches[0]);
+    if(left_operand_jump_size > 1) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(left_operand_jump_size), node->branches[1]);
       node->branches[1] = mul_node;
 
       return node;
     }
-    else if(is_pointer(node->branches[1])) {
-      Node* mul_node = new_node(ND_MUL, new_node_num(4), node->branches[0]);
+
+    int right_operand_jump_size = get_pointer_jump_size(node->branches[0]);
+    if(right_operand_jump_size > 1) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(right_operand_jump_size), node->branches[0]);
       node->branches[0] = mul_node;
 
       return node;

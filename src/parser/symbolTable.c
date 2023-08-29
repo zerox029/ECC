@@ -8,15 +8,15 @@
 
 static LVar* symbol_table;
 
-static bool var_is_equivalent(const LVar* var, const Token* tok, const char* function_name) {
-  return var->len == tok->len
-    && !memcmp(tok->str, var->name, var->len)
+static bool var_is_equivalent(const LVar* var, const char* variable_name, const char* function_name) {
+  return var->len == strlen(variable_name)
+    && !memcmp(variable_name, var->name, var->len)
     && !strcmp(var->function_name, function_name);
 }
 
-LVar* find_lvar(Token* tok, char* function_name) {
+LVar* find_lvar(char* variable_name, char* function_name) {
   for (LVar* var = symbol_table; var; var = var->next) {
-    if (var_is_equivalent(var, tok, function_name)) {
+    if (var_is_equivalent(var, variable_name, function_name)) {
       return var;
     }
   }
@@ -41,10 +41,10 @@ LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth) {
 
   // Setting type
   Type* type = calloc(1, sizeof(Type));
-  type->ty = INT;
+  type->data_type = INT;
   for(int i = 0; i < pointer_depth; i++) {
     Type* pointer_type = calloc(1, sizeof(Type));
-    pointer_type->ty = PTR;
+    pointer_type->data_type = PTR;
     pointer_type->ptr_to = type;
     type = pointer_type;
   }

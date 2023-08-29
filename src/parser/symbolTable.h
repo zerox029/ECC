@@ -12,7 +12,7 @@ typedef struct LVar LVar;
 typedef struct Type Type;
 
 struct Type {
-  enum { INT, PTR } ty;
+  enum { INT = 4, PTR = 8 } data_type;
   Type* ptr_to;
 };
 
@@ -25,7 +25,7 @@ struct LVar {
   int offset;
 };
 
-LVar* find_lvar(Token* tok, char* function_name);
+LVar* find_lvar(char* tok, char* function_name);
 LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth);
 size_t get_function_table_size(char* function_name);
 

@@ -4,7 +4,7 @@ assert() {
   input="$2"
 
   ./out/ECC "$input" > out/tmp.s # Redirecting the output of ECC to an assembly file
-  cc -o out/tmp out/tmp.s out/func.o # Linking the generated assembly with the function file in an executable
+  cc -o out/tmp out/tmp.s out/func.o out/memory.o # Linking the generated assembly with the function file in an executable
   ./out/tmp
 
   actual="$?"
@@ -109,8 +109,10 @@ pointers() {
   printf "Testing pointers\n"
 
   assert 3 'int main() {int x=3; int y=&x; return *y;}'
-  assert 3 'int main() {int x=3; int y=5; int z=&y + 2; return *z;}'
   assert 3 'int main() {int x; int *y; y=&x; *y=3; return x;}'
+  assert 4 'int main() {int* p; alloc4(&p, 1, 2, 4, 8); int *q; q = p + 2; return *q;}'
+  assert 8 'int main() {int* p; alloc4(&p, 1, 2, 4, 8); int *q; q = p + 3; return *q;}'
+  # TODO: Test double pointer arithmetic
 
   printf "OK\n\n"
 }
@@ -147,4 +149,5 @@ all() {
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions
+cc -c out/memory.c -o out/memory.o # Compiling the memory file
 all

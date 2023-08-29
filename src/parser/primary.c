@@ -47,10 +47,10 @@ Node* function(Token* tok) {
 
     if(!is_next_token_of_type(TK_CL_PAR)) {
       node->branches = vector_create();
-      vector_add(&node->branches, primary());
+      vector_add(&node->branches, equality());
     }
     while(consume(TK_COMMA)) {
-      vector_add(&node->branches, primary());
+      vector_add(&node->branches, equality());
     }
 
     expect(TK_CL_PAR);
