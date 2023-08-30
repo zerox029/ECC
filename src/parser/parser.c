@@ -23,10 +23,10 @@ primary     = num
               | "(" expr ")"
 */
 
+// TODO: Update production rules and parser such that the & operator can only take labels;
+
 #include <stdlib.h>
-#include <string.h>
 #include "parser.h"
-#include "primary.h"
 #include "symbolTable.h"
 #include "../utils.h"
 #include "../lib/vector.h"
@@ -34,9 +34,7 @@ primary     = num
 Node** code;
 char* current_function_name = "GLOBAL";
 
-
 // Creates a new, non-numerical, node
-// TODO: Update the parameters to a VAlist
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
   Node* node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -50,6 +48,7 @@ Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
 
 // Creates a new numerical leaf node
 Node* new_node_num(int val) {
+
   Node* node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
@@ -216,11 +215,7 @@ Node* relational() {
 // Returns how large of a data a pointer points to, that value must then be substituted for the operand when doing
 // pointer arithmetic. A value of 1 reprensents no pointer.
 static int get_pointer_jump_size(Node* node) {
-  if(node->kind == ND_ADDR) {
-    // TODO: Handle this case
-    return 1;
-  }
-  else if(node->kind == ND_LVAR) {
+  if(node->kind == ND_LVAR) {
     LVar* variable = find_lvar(node->variable_name, current_function_name);
 
     if(variable->ty->data_type != PTR)
