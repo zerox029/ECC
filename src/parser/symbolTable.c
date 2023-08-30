@@ -10,7 +10,7 @@ static LVar* symbol_table;
 
 static bool var_is_equivalent(const LVar* var, const char* variable_name, const char* function_name) {
   return var->len == strlen(variable_name)
-    && !memcmp(variable_name, var->name, var->len)
+    && !strcmp(var->name, variable_name)
     && !strcmp(var->function_name, function_name);
 }
 
