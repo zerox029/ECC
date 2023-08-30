@@ -39,6 +39,7 @@ typedef enum {
   TK_ELSE,      // else
   TK_WHILE,     // while
   TK_FOR,       // for
+  TK_SIZEOF,    // sizeof
 
   TK_LABEL,     // Labels
   TK_NUM,       // Numerical values
@@ -59,6 +60,7 @@ extern Token* token;
 bool is_next_token_of_type(TokenKind token_kind);
 bool is_nth_token_of_type(TokenKind token_kind, int n);
 Token* consume(TokenKind token_kind);
+void reverse_consume(Token* tok);
 void expect(TokenKind token_kind);
 int expect_number();
 bool at_eof();

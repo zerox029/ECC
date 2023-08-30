@@ -30,7 +30,8 @@ struct Symbol symbols[] = {
 
 struct Symbol keywords[] = {
     {"return", TK_RETURN}, {"if", TK_IF}, {"else", TK_ELSE},
-    {"while", TK_WHILE}, {"for", TK_FOR}, {"int", TK_INT}
+    {"while", TK_WHILE}, {"for", TK_FOR}, {"int", TK_INT},
+    {"sizeof", TK_SIZEOF}
 };
 
 // Checks if the next token is of the specified kind
@@ -59,6 +60,12 @@ Token* consume(TokenKind token_kind) {
   } else {
     return NULL;
   }
+}
+
+// The inverse operation of consume, it places a token back at the top of the list
+void reverse_consume(Token* tok) {
+  tok->next = token;
+  token = tok;
 }
 
 // Throws an error if the current token is not of the expected type and moves to the next token otherwise

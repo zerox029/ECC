@@ -12,12 +12,12 @@ stmt        = expr ";"
               | "for" "(" expr? ";" expr? ";" expr? ")" stmt
               | "return" equality ";"
 expr        = assign | equality
-assign      = ("int" "*"*)? label ("=" equality)?
+assign      = "int"? "*"* label ("=" equality)?
 equality    = relational ("==" relational | "!=" relational)*
 relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
 add         = mul ("+" mul | "-" mul)*
 mul         = unary ("*" unary | "/" unary)*
-unary       =  ("+" | "-" | "++" | "--" | "*" | "&")? primary
+unary       =  ("+" | "-" | "++" | "--" | "*" | "&")? primary | sizeof unary
 primary     = num
               | label ("(" ((equality ",")* equality)? ")")?
               | "(" expr ")"
@@ -33,6 +33,12 @@ primary     = num
 
 Node** code;
 char* current_function_name = "GLOBAL";
+
+static LVar* get_var_from_node(Node* node);
+static int get_pointer_jump_size(Node* node);
+static Node* handle_pointer_arithmetic(Node* node);
+static bool is_pointer_operation(Node* node);
+static int resolve_sizeof(Node* argument);
 
 // Creates a new, non-numerical, node
 Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
@@ -141,7 +147,7 @@ Node* expr() {
   return assign() ?: equality();
 }
 
-// assign = ("int" "*"*)? label ("=" equality)?
+// assign = "int"? "*"* label ("=" equality)?
 Node* assign() {
   int pointer_depth = 0;
   // Declaration
@@ -165,7 +171,9 @@ Node* assign() {
   while(consume(TK_STAR)) {
     pointer_depth++;
   }
-  if(is_next_token_of_type(TK_LABEL) && is_nth_token_of_type(TK_ASSIGN, 1)) {
+  if((is_next_token_of_type(TK_LABEL) || is_next_token_of_type(TK_STAR))
+      && is_nth_token_of_type(TK_ASSIGN, 1)) {
+
     Token* tok = consume(TK_LABEL);
 
     Node* label = new_node_var(tok, false, pointer_depth);
@@ -173,6 +181,15 @@ Node* assign() {
     expect(TK_ASSIGN);
 
     return new_node(ND_ASSIGN, label, equality());
+  }
+  // TODO: Change this, ugly
+  else {
+    for(int i = 0; i < pointer_depth; i++) {
+      Token* tok = calloc(1, sizeof(Token));
+      tok->kind = TK_STAR;
+      tok->str = "*";
+      reverse_consume(tok);
+    }
   }
 
   return NULL;
@@ -212,46 +229,6 @@ Node* relational() {
   }
 }
 
-// Returns how large of a data a pointer points to, that value must then be substituted for the operand when doing
-// pointer arithmetic. A value of 1 reprensents no pointer.
-static int get_pointer_jump_size(Node* node) {
-  if(node->kind == ND_LVAR) {
-    LVar* variable = find_lvar(node->variable_name, current_function_name);
-
-    if(variable->ty->data_type != PTR)
-    {
-      return 1;
-    }
-
-    return (int) variable->ty->ptr_to->data_type;
-  }
-
-  return false;
-}
-
-// If pointer arithmetic, multiply the result by the size of the datatype pointed to by the pointer
-static Node* handle_pointer_arithmetic(Node* node) {
-  if(node->kind == ND_ADD || node->kind == ND_SUB) {
-    int left_operand_jump_size = get_pointer_jump_size(node->branches[0]);
-    if(left_operand_jump_size > 1) {
-      Node* mul_node = new_node(ND_MUL, new_node_num(left_operand_jump_size), node->branches[1]);
-      node->branches[1] = mul_node;
-
-      return node;
-    }
-
-    int right_operand_jump_size = get_pointer_jump_size(node->branches[0]);
-    if(right_operand_jump_size > 1) {
-      Node* mul_node = new_node(ND_MUL, new_node_num(right_operand_jump_size), node->branches[0]);
-      node->branches[0] = mul_node;
-
-      return node;
-    }
-  }
-
-  return node;
-}
-
 // add = mul ("+" mul | "-" mul)*
 Node* add() {
   Node* node = mul();
@@ -282,8 +259,7 @@ Node* mul() {
   }
 }
 
-// unary = ("+" | "-" | "++" | "--" | "&")? primary
-//         | "*" unary
+// unary = ("+" | "-" | "++" | "--" | "&")? primary | sizeof unary
 Node* unary() {
   if (consume(TK_PLUS)) {
     return primary();
@@ -303,6 +279,90 @@ Node* unary() {
   if(consume(TK_AMPERSAND)) {
     return new_node(ND_ADDR, primary(), NULL);
   }
+  if(consume(TK_SIZEOF)) {
+    Node* argument = unary();
+
+    return new_node_num(resolve_sizeof(argument));
+  }
 
   return primary();
+}
+
+static LVar* get_var_from_node(Node* node) {
+  if(node->kind != ND_LVAR) {
+    return NULL;
+  }
+
+  return find_lvar(node->variable_name, current_function_name);
+}
+
+// Returns how large of a data a pointer points to, that value must then be substituted for the operand when doing
+// pointer arithmetic. A value of 1 reprensents no pointer.
+static int get_pointer_jump_size(Node* node) {
+  LVar* variable = get_var_from_node(node);
+
+  if(variable == NULL || variable->ty->data_type != PTR)
+  {
+    return 1;
+  }
+
+  return (int) variable->ty->ptr_to->data_type;
+}
+
+// If pointer arithmetic, multiply the result by the size of the datatype pointed to by the pointer
+static Node* handle_pointer_arithmetic(Node* node) {
+  if(node->kind == ND_ADD || node->kind == ND_SUB) {
+    int left_operand_jump_size = get_pointer_jump_size(node->branches[0]);
+    if(left_operand_jump_size > 1) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(left_operand_jump_size), node->branches[1]);
+      node->branches[1] = mul_node;
+
+      return node;
+    }
+
+    int right_operand_jump_size = get_pointer_jump_size(node->branches[0]);
+    if(right_operand_jump_size > 1) {
+      Node* mul_node = new_node(ND_MUL, new_node_num(right_operand_jump_size), node->branches[0]);
+      node->branches[0] = mul_node;
+
+      return node;
+    }
+  }
+
+  return node;
+}
+
+// Returns true if the given node adds or substract a value from a pointer
+static bool is_pointer_operation(Node* node) {
+  if(node->kind != ND_ADD && node->kind != ND_SUB) {
+    return false;
+  }
+
+  Node* var_node = node->branches[0]->kind == ND_LVAR ? node->branches[0] : node->branches[1];
+  return get_var_from_node(var_node)->ty->data_type == PTR;
+}
+
+static int resolve_sizeof(Node* argument) {
+  if(argument->kind == ND_NUM) {
+    return 4;
+  }
+  else if(argument->kind == ND_ADDR) {
+    return 8;
+  }
+  else if(argument->kind == ND_LVAR) {
+    return (int) get_var_from_node(argument)->ty->data_type;
+  }
+  else if(argument->kind == ND_DEREF) {
+    return (int) get_var_from_node(argument->branches[0])->ty->ptr_to->data_type;
+  }
+  else if(argument->kind == ND_ADD || argument->kind == ND_SUB) {
+    if(is_pointer_operation(argument)) {
+      return 8;
+    }
+    else {
+      return 4;
+    }
+  }
+
+  return 0;
 }
