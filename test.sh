@@ -108,7 +108,6 @@ functions() {
 pointers() {
   printf "Testing pointers\n"
 
-  # TODO: Fix "int* y = &x" notation not working
   assert 3 'int main() {int x=3; int* y=&x; return *y;}'
   assert 3 'int main() {int x; int *y = &x; *y=3; return x;}'
   assert 4 'int main() {int* p; alloc4(&p, 1, 2, 4, 8); int *q; q = p + 2; return *q;}'
