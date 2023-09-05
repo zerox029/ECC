@@ -109,8 +109,8 @@ pointers() {
   printf "Testing pointers\n"
 
   # TODO: Fix "int* y = &x" notation not working
-  assert 3 'int main() {int x=3; int y=&x; return *y;}'
-  assert 3 'int main() {int x; int *y; y=&x; *y=3; return x;}'
+  assert 3 'int main() {int x=3; int* y=&x; return *y;}'
+  assert 3 'int main() {int x; int *y = &x; *y=3; return x;}'
   assert 4 'int main() {int* p; alloc4(&p, 1, 2, 4, 8); int *q; q = p + 2; return *q;}'
   assert 8 'int main() {int* p; alloc4(&p, 1, 2, 4, 8); int *q; q = p + 3; return *q;}'
   # TODO: Test double pointer arithmetic
@@ -124,8 +124,8 @@ sizeof() {
   assert 4 'int main() { return sizeof(10); }'
   assert 4 'int main() { int i = 10; return sizeof(i); }'
   assert 8 'int main() { int i = 10; return sizeof(&i); }'
-  assert 8 'int main() { int x=3; int* y; y = &x; return sizeof(y); }'
-  assert 4 'int main() { int x=3; int* y; y = &x; return sizeof(*y); }'
+  assert 8 'int main() { int x=3; int* y = &x; return sizeof(y); }'
+  assert 4 'int main() { int x=3; int* y = &x; return sizeof(*y); }'
   assert 4 'int main() { int x=3; return sizeof(x+3); }'
   assert 8 'int main() { int* x; return sizeof(x+3); }'
 

@@ -81,13 +81,15 @@ Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth) {
     }
   }
 
-  // Handling pointer values
-  for(int i = 0; i < pointer_depth; i++) {
-    Node* pointer_node = calloc(1, sizeof(Node));
-    pointer_node->kind = ND_DEREF;
-    pointer_node->branches = vector_create();
-    vector_add(&pointer_node->branches, node);
-    node = pointer_node;
+  // Handling dereferenced variable values
+  if(!is_declaration) {
+    for(int i = 0; i < pointer_depth; i++) {
+      Node* pointer_node = calloc(1, sizeof(Node));
+      pointer_node->kind = ND_DEREF;
+      pointer_node->branches = vector_create();
+      vector_add(&pointer_node->branches, node);
+      node = pointer_node;
+    }
   }
 
   return node;
