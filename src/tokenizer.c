@@ -24,7 +24,7 @@ struct Symbol symbols[] = {
 {"*", TK_STAR}, {"/", TK_SLASH}, {"=", TK_ASSIGN},
 {"(", TK_OP_PAR}, {")", TK_CL_PAR}, {";", TK_SMCOLON},
 {"{", TK_OP_BLK}, {"}", TK_CL_BLK}, {",", TK_COMMA},
-{"&", TK_AMPERSAND}
+{"&", TK_AMPERSAND}, {"[", TK_OP_ARR}, {"]", TK_CL_ARR}
 
 };
 

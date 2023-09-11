@@ -12,7 +12,7 @@ stmt        = expr ";"
               | "for" "(" expr? ";" expr? ";" expr? ")" stmt
               | "return" equality ";"
 expr        = assign | equality
-assign      = "int"? "*"* label ("=" equality)?
+assign      = "int"? "*"* label ("[" primary "]") ("=" equality)?
 equality    = relational ("==" relational | "!=" relational)*
 relational  = add ("<" add | "<=" add | ">" add | ">=" add)*
 add         = mul ("+" mul | "-" mul)*
@@ -54,7 +54,6 @@ Node* new_node(NodeKind kind, Node* lhs, Node* rhs) {
 
 // Creates a new numerical leaf node
 Node* new_node_num(int val) {
-
   Node* node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
@@ -81,7 +80,18 @@ Node* new_node_var(Token* tok, bool is_declaration, int pointer_depth) {
     }
   }
 
-  // Handling dereferenced variable values
+  // Handle arrays
+  if(consume(TK_OP_ARR)) {
+    Node* array_size = primary();
+
+    // TODO: This implementation only takes numerical value, we should be able to accept any primary node
+    lvar->ty->array_size = array_size->val;
+    lvar->offset = array_size->val * (int) lvar->ty->data_type;
+
+    expect(TK_CL_ARR);
+  }
+
+  // Handle dereferenced variable values
   if(!is_declaration) {
     for(int i = 0; i < pointer_depth; i++) {
       Node* pointer_node = calloc(1, sizeof(Node));

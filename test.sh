@@ -131,6 +131,14 @@ sizeof() {
   printf "OK\n\n"
 }
 
+arrays() {
+    printf "Testing arrays\n"
+
+    assert 0 'int main() { int array[5]; return 0; }'
+
+    printf "OK\n\n"
+}
+
 fibonacci() {
   assert 55 "
 int fib(n)
@@ -161,6 +169,7 @@ all() {
   functions
   pointers
   sizeof
+  arrays
 }
 
 cc -c out/func.c -o out/func.o # Compiling the functions file to test cross file functions

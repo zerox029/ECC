@@ -33,6 +33,7 @@ LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth) {
   lvar->len = tok->len;
 
   // Setting offset
+  // TODO: Don't default to 8 bytes for all data types. Only allocate the minimum memory required.
   if (symbol_table && symbol_table->function_name == function_name) {
     lvar->offset = symbol_table->offset + 8;
   } else {
@@ -55,12 +56,18 @@ LVar* add_symbol_to_table(Token* tok, char* function_name, int pointer_depth) {
   return lvar;
 }
 
-size_t get_function_table_size(char* function_name) {
+size_t get_function_table_byte_size(char* function_name) {
   size_t size = 0;
   for (LVar* var = symbol_table; var; var = var->next) {
     if(!strcmp(var->function_name, function_name))
     {
-      size++;
+      int var_size = 8;
+
+      if(var->ty->array_size > 0) {
+        var_size *= (int) var->ty->array_size;
+      }
+
+      size += var_size;
     }
   }
 

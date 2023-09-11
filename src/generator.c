@@ -17,12 +17,12 @@ void generate_file_prologue() {
   printf(".globl main\n");
 }
 
-static void generate_function_prologue(size_t variable_count) {
+static void generate_function_prologue(size_t stack_frame_size) {
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
 
-  if(variable_count > 0)
-    printf("  sub rsp, %zu\n", variable_count * 8);
+  if(stack_frame_size > 0)
+    printf("  sub rsp, %zu\n", stack_frame_size);
 }
 
 static void generate_comparison(char* operator_instruction) {
@@ -163,7 +163,7 @@ static void generate_function_call(Node* node) {
 
 static void generate_function_declaration(Node* node) {
   printf("%s:\n", node->name);
-  generate_function_prologue(get_function_table_size(node->name));
+  generate_function_prologue(get_function_table_byte_size(node->name));
 
   for(int i = 0; i < vector_size(node->branches); i++) {
     if(node->branches[i]->kind == ND_LVAR) {

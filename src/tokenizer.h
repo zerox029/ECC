@@ -28,6 +28,8 @@ typedef enum {
   TK_CL_PAR,    // )
   TK_OP_BLK,    // {
   TK_CL_BLK,    // }
+  TK_OP_ARR,    // [
+  TK_CL_ARR,    // ]
   TK_SMCOLON,   // ;
   TK_COMMA,     // ,
   TK_AMPERSAND, // &
